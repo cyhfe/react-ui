@@ -10,7 +10,6 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "publish": "npm version patch && npm publish",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
