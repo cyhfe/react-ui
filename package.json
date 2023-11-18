@@ -1,6 +1,6 @@
 {
   "name": "@cyhfe/react-ui",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "react component library",
   "main": "dist/cjs/index.cjs.js",
   "module": "dist/esm/index.esm.js",
