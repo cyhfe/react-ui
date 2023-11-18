@@ -1,36 +1,29 @@
 {
   "name": "react-ui",
-  "version": "0.0.1",
-  "description": "react component library",
-  "sideEffects": false,
-  "source": "./src/index.ts",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "require": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      }
-    }
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/cjs/index.cjs.js",
+  "module": "dist/esm/index.esm.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c"
   },
-  "peerDependencies": {
-    "@types/react": "*",
-    "@types/react-dom": "*",
-    "react": "^18.0",
-    "react-dom": "^18.0"
-  },
-  "scripts": {},
   "keywords": [],
   "author": "",
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/react": "^18.2.37",
+    "react": "^18.2.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "react": "^18.0"
+  }
 }
