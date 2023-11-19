@@ -126,58 +126,6 @@ const Input = forwardRef<HTMLInputElement, UploadProps>(function Upload(
           }
         }}
         multiple
-        // onChange={(e) => {
-        //   const uploadInput = e.currentTarget;
-        //   if (!uploadInput.files) return;
-        //   // const files = Array.from(uploadInput.files);
-        //   // console.log(files);
-
-        //   // for ( (file, i) of uploadInput.files) {
-        //   //   const fileWithId = {
-        //   //     ...file,
-        //   //     uid: uuid(),
-        //   //   };
-        //   //   setFileList((prev) => [...prev, fileWithId]);
-        //   // }
-
-        //   for (let i = 0; i < uploadInput.files.length; i++) {
-        //     const file = uploadInput.files[i];
-        //     const fileWithId = {
-        //       file,
-        //       uid: uuid(),
-        //     };
-        //     setFileList((prev) => [...prev, fileWithId]);
-        //   }
-        //   let numberOfBytes = 0;
-        //   for (const file of uploadInput.files) {
-        //     numberOfBytes += file.size;
-        //   }
-
-        //   // Approximate to the closest prefixed unit
-        //   const units = [
-        //     "B",
-        //     "KiB",
-        //     "MiB",
-        //     "GiB",
-        //     "TiB",
-        //     "PiB",
-        //     "EiB",
-        //     "ZiB",
-        //     "YiB",
-        //   ];
-        //   const exponent = Math.min(
-        //     Math.floor(Math.log(numberOfBytes) / Math.log(1024)),
-        //     units.length - 1
-        //   );
-        //   const approx = numberOfBytes / 1024 ** exponent;
-        //   const output =
-        //     exponent === 0
-        //       ? `${numberOfBytes} bytes`
-        //       : `${approx.toFixed(3)} ${
-        //           units[exponent]
-        //         } (${numberOfBytes} bytes)`;
-        //   console.log(output);
-        // }}
         {...rest}
       />
 
@@ -225,67 +173,100 @@ const baseUrl = "http://localhost:3000";
 function Demo() {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [fileList, setFileList] = useState<FileWithId[]>([]);
+  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState<
+    "pending" | "success" | "error" | "idle"
+  >("idle");
+  const xhrRef = useRef<XMLHttpRequest>();
 
   useEffect(() => {
     console.log(fileList);
   }, [fileList]);
   return (
     <div>
-      <form
-        // encType="multipart/form-data"
-        // method="POST"
-        // action={baseUrl + "/profile"}
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const form = e.currentTarget;
-          const formData = new FormData();
-          // console.log(inputRef.current!.files![0]);
-          for (const file of fileList) {
-            formData.append("avatar", file.file);
-          }
-
-          // console.log(Object.fromEntries(formData));
-          try {
-            const res = await fetch(baseUrl + "/profile", {
-              method: "POST",
-              body: formData,
-              headers: {
-                // "Content-Type": "multipart/form-data",
-              },
-            });
-
-            const data = await res.json();
-            console.log(data, "data");
-          } catch (error) {
-            console.log(error, "error");
-          }
-        }}
-      >
-        <Input fileList={fileList} setFileList={setFileList} />
+      <Input fileList={fileList} setFileList={setFileList} />
+      <div>
         <div>
-          <div>
-            {fileList.map((file) => (
-              <div key={file.uid}>
-                <span>{file.file.name}</span>
-                <span>{file.file.size}</span>
-                <span
-                  onClick={() =>
-                    setFileList((prev) =>
-                      prev.filter((x) => x.uid !== file.uid)
-                    )
-                  }
-                >
-                  x
-                </span>
-              </div>
-            ))}
-          </div>
+          {fileList.map((file) => (
+            <div key={file.uid}>
+              <span>{file.file.name}</span>
+              <span>{file.file.size}</span>
+              <span
+                onClick={() =>
+                  setFileList((prev) => prev.filter((x) => x.uid !== file.uid))
+                }
+              >
+                x
+              </span>
+            </div>
+          ))}
         </div>
-        <Thumbnails fileList={fileList} />
-        <button type="submit">submit</button>
-      </form>
+      </div>
+      <Thumbnails fileList={fileList} />
+      {/* <button type="submit">submit</button> */}
+      {/* action */}
+      <div>
+        <button
+          onClick={() => {
+            const xhr = new XMLHttpRequest();
+            xhrRef.current = xhr;
+            xhr.upload.addEventListener(
+              "progress",
+              (e) => {
+                if (e.lengthComputable) {
+                  const percentage = Math.round((e.loaded * 100) / e.total);
+                  setProgress(percentage);
+                  // console.log(percentage, "progress");
+                }
+              },
+              false
+            );
+            xhr.addEventListener("load", () => {
+              setStatus("success");
+            });
+            xhr.addEventListener("loadend", () => {
+              setStatus("idle");
+            });
+            xhr.addEventListener("error", () => {
+              setStatus("error");
+            });
+            xhr.addEventListener("loadstart", () => {
+              setStatus("pending");
+            });
+            if (xhr) {
+              xhr.overrideMimeType("text/plain; charset=x-user-defined-binary");
+              xhr.open("POST", baseUrl + "/profile");
+              const formData = new FormData();
+              const files = fileList.map((file) => file.file);
+              for (const file of files) {
+                formData.append("avatar", file);
+              }
+              xhr.send(formData);
+            }
+          }}
+        >
+          upload
+        </button>
+        <button
+          onClick={() => {
+            const xhr = xhrRef.current;
+            if (xhr) {
+              xhr.abort();
+            }
+          }}
+        >
+          abort
+        </button>
+      </div>
+
+      <div>{progress}</div>
     </div>
   );
 }
+
+function Action() {
+  return <div>action</div>;
+}
+
 // https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications
 export { Demo };
