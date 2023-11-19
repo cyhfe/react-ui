@@ -1,4 +1,4 @@
-import React, {
+import {
   ChangeEvent,
   ComponentPropsWithoutRef,
   ReactNode,
@@ -9,12 +9,12 @@ import React, {
 } from "react";
 
 import { v4 as uuid } from "uuid";
-import { createContext } from "../lib/createContext";
-import { Slot } from "../lib/Slot";
-import { VisuallyHidden } from "../lib/VisuallyHidden";
-import { useComposeRefs } from "../lib/useComposeRefs";
+import { createContext } from "../createContext";
+import { Slot } from "../Slot";
+import { VisuallyHidden } from "../VisuallyHidden";
+import { useComposeRefs } from "../useComposeRefs";
 
-const baseUrl = "http://localhost:3000";
+// const baseUrl = "http://localhost:3000";
 
 // fetch('/upload', {
 //   method: "POST",
@@ -266,28 +266,30 @@ interface FileWithId {
   uid: string;
 }
 
-function Demo() {
-  return (
-    <div>
-      <Upload name="avatar" url={baseUrl + "/upload"}>
-        <Input enableDrop multiple>
-          <div>custom upload</div>
-        </Input>
-        <Details />
-        <Action>
-          {({ upload, abort, progress, status }) => (
-            <div>
-              <button onClick={upload}>upload</button>
-              <button onClick={abort}>abort</button>
-              {status === "pending" && <span>{progress}%</span>}
-              <span>{status}</span>
-            </div>
-          )}
-        </Action>
-      </Upload>
-    </div>
-  );
-}
+// function Demo() {
+//   return (
+//     <div>
+//       <Upload name="avatar" url={baseUrl + "/upload"}>
+//         <Input enableDrop multiple>
+//           <div>custom upload</div>
+//         </Input>
+//         <Details />
+//         <Action>
+//           {({ upload, abort, progress, status }) => (
+//             <div>
+//               <button onClick={upload}>upload</button>
+//               <button onClick={abort}>abort</button>
+//               {status === "pending" && <span>{progress}%</span>}
+//               <span>{status}</span>
+//             </div>
+//           )}
+//         </Action>
+//       </Upload>
+//     </div>
+//   );
+// }
+
+const Root = Upload;
 
 // https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications
-export { Demo };
+export { Root, Upload, Details, Action, Input };
