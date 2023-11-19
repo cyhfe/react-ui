@@ -6,6 +6,8 @@ import React, {
   useState,
 } from "react";
 
+import { v4 as uuid } from "uuid";
+
 // fetch('/upload', {
 //   method: "POST",
 //   body: formData,
@@ -31,9 +33,13 @@ function Thumbnail() {
 //   </div>
 // }
 
+interface FileWithId {
+  file: File;
+  uid: string;
+}
 interface UploadProps extends ComponentPropsWithoutRef<"input"> {
-  fileList: File[];
-  setFileList: React.Dispatch<React.SetStateAction<File[]>>;
+  fileList: FileWithId[];
+  setFileList: React.Dispatch<React.SetStateAction<FileWithId[]>>;
 }
 
 const Input = forwardRef<HTMLInputElement, UploadProps>(function Upload(
@@ -42,6 +48,57 @@ const Input = forwardRef<HTMLInputElement, UploadProps>(function Upload(
 ) {
   const { fileList, setFileList, ...rest } = props;
   const inutRef = useRef<HTMLInputElement | null>(null);
+
+  const handleChange = (e: any) => {
+    const uploadInput = e.currentTarget;
+    if (!uploadInput.files) return;
+    // const files = Array.from(uploadInput.files);
+    // console.log(files);
+
+    // for ( (file, i) of uploadInput.files) {
+    //   const fileWithId = {
+    //     ...file,
+    //     uid: uuid(),
+    //   };
+    //   setFileList((prev) => [...prev, fileWithId]);
+    // }
+
+    for (let i = 0; i < uploadInput.files.length; i++) {
+      const file = uploadInput.files[i];
+      const fileWithId = {
+        file,
+        uid: uuid(),
+      };
+      setFileList((prev) => [...prev, fileWithId]);
+    }
+    let numberOfBytes = 0;
+    for (const file of uploadInput.files) {
+      numberOfBytes += file.size;
+    }
+
+    // Approximate to the closest prefixed unit
+    const units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+    const exponent = Math.min(
+      Math.floor(Math.log(numberOfBytes) / Math.log(1024)),
+      units.length - 1
+    );
+    const approx = numberOfBytes / 1024 ** exponent;
+    const output =
+      exponent === 0
+        ? `${numberOfBytes} bytes`
+        : `${approx.toFixed(3)} ${units[exponent]} (${numberOfBytes} bytes)`;
+    console.log(output);
+  };
+
+  useEffect(() => {
+    const input = inutRef.current;
+    if (input) {
+      input.addEventListener("change", handleChange);
+      return () => {
+        input.removeEventListener("change", handleChange);
+      };
+    }
+  });
   return (
     <div>
       <input
@@ -58,48 +115,76 @@ const Input = forwardRef<HTMLInputElement, UploadProps>(function Upload(
           }
         }}
         multiple
-        onChange={(e) => {
-          const uploadInput = e.currentTarget;
-          if (!uploadInput.files) return;
-          console.log(uploadInput.files);
-          for (const file of uploadInput.files) {
-            setFileList((prev) => [...prev, file]);
-          }
-          let numberOfBytes = 0;
-          for (const file of uploadInput.files) {
-            numberOfBytes += file.size;
-          }
-
-          // Approximate to the closest prefixed unit
-          const units = [
-            "B",
-            "KiB",
-            "MiB",
-            "GiB",
-            "TiB",
-            "PiB",
-            "EiB",
-            "ZiB",
-            "YiB",
-          ];
-          const exponent = Math.min(
-            Math.floor(Math.log(numberOfBytes) / Math.log(1024)),
-            units.length - 1
-          );
-          const approx = numberOfBytes / 1024 ** exponent;
-          const output =
-            exponent === 0
-              ? `${numberOfBytes} bytes`
-              : `${approx.toFixed(3)} ${
-                  units[exponent]
-                } (${numberOfBytes} bytes)`;
-          console.log(output);
+        onChange={() => {
+          console.log("change");
         }}
+        onInput={() => {
+          console.log("input");
+        }}
+        // onChange={(e) => {
+        //   const uploadInput = e.currentTarget;
+        //   if (!uploadInput.files) return;
+        //   // const files = Array.from(uploadInput.files);
+        //   // console.log(files);
+
+        //   // for ( (file, i) of uploadInput.files) {
+        //   //   const fileWithId = {
+        //   //     ...file,
+        //   //     uid: uuid(),
+        //   //   };
+        //   //   setFileList((prev) => [...prev, fileWithId]);
+        //   // }
+
+        //   for (let i = 0; i < uploadInput.files.length; i++) {
+        //     const file = uploadInput.files[i];
+        //     const fileWithId = {
+        //       file,
+        //       uid: uuid(),
+        //     };
+        //     setFileList((prev) => [...prev, fileWithId]);
+        //   }
+        //   let numberOfBytes = 0;
+        //   for (const file of uploadInput.files) {
+        //     numberOfBytes += file.size;
+        //   }
+
+        //   // Approximate to the closest prefixed unit
+        //   const units = [
+        //     "B",
+        //     "KiB",
+        //     "MiB",
+        //     "GiB",
+        //     "TiB",
+        //     "PiB",
+        //     "EiB",
+        //     "ZiB",
+        //     "YiB",
+        //   ];
+        //   const exponent = Math.min(
+        //     Math.floor(Math.log(numberOfBytes) / Math.log(1024)),
+        //     units.length - 1
+        //   );
+        //   const approx = numberOfBytes / 1024 ** exponent;
+        //   const output =
+        //     exponent === 0
+        //       ? `${numberOfBytes} bytes`
+        //       : `${approx.toFixed(3)} ${
+        //           units[exponent]
+        //         } (${numberOfBytes} bytes)`;
+        //   console.log(output);
+        // }}
+        {...rest}
       />
 
       <div
         className="w-24 h-24 bg-gray-300"
-        onClick={() => inutRef.current?.click()}
+        onClick={() => {
+          const input = inutRef.current;
+          if (input) {
+            input.value = "";
+            input.click();
+          }
+        }}
       >
         Upload
       </div>
@@ -110,7 +195,7 @@ const Input = forwardRef<HTMLInputElement, UploadProps>(function Upload(
 const baseUrl = "http://localhost:3000";
 function Demo() {
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const [fileList, setFileList] = useState<File[]>([]);
+  const [fileList, setFileList] = useState<FileWithId[]>([]);
 
   useEffect(() => {
     console.log(fileList);
@@ -127,7 +212,7 @@ function Demo() {
           const formData = new FormData();
           // console.log(inputRef.current!.files![0]);
           for (const file of fileList) {
-            formData.append("avatar", file);
+            formData.append("avatar", file.file);
           }
 
           // console.log(Object.fromEntries(formData));
@@ -148,7 +233,25 @@ function Demo() {
         }}
       >
         <Input fileList={fileList} setFileList={setFileList} />
-        <input type="text" name="customName" />
+        <div>
+          <div>
+            {fileList.map((file) => (
+              <div key={file.uid}>
+                <div>{file.file.name}</div>
+                <div>{file.file.size}</div>
+                <div
+                  onClick={() =>
+                    setFileList((prev) =>
+                      prev.filter((x) => x.uid !== file.uid)
+                    )
+                  }
+                >
+                  x
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
         <button type="submit">submit</button>
       </form>
     </div>
