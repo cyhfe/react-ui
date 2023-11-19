@@ -19,8 +19,19 @@ import { v4 as uuid } from "uuid";
 
 // label not in div
 
-function Thumbnail() {
-  return;
+interface ThumbnailsProps {
+  fileList: FileWithId[];
+}
+function Thumbnails({ fileList }: ThumbnailsProps) {
+  return (
+    <div>
+      {fileList.map((file) => (
+        <div key={file.uid}>
+          <img src={URL.createObjectURL(file.file)} />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 // function Demo(){
@@ -115,12 +126,6 @@ const Input = forwardRef<HTMLInputElement, UploadProps>(function Upload(
           }
         }}
         multiple
-        onChange={() => {
-          console.log("change");
-        }}
-        onInput={() => {
-          console.log("input");
-        }}
         // onChange={(e) => {
         //   const uploadInput = e.currentTarget;
         //   if (!uploadInput.files) return;
@@ -185,6 +190,30 @@ const Input = forwardRef<HTMLInputElement, UploadProps>(function Upload(
             input.click();
           }
         }}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const dt = e.dataTransfer;
+          for (let i = 0; i < dt.files.length; i++) {
+            const file = dt.files[i];
+            const fileWithId = {
+              file,
+              uid: uuid(),
+            };
+            setFileList((prev) => [...prev, fileWithId]);
+          }
+        }}
+        //         dropbox.addEventListener("dragenter", dragenter, false);
+        // dropbox.addEventListener("dragover", dragover, false);
+        // dropbox.addEventListener("drop", drop, false);
       >
         Upload
       </div>
@@ -237,9 +266,9 @@ function Demo() {
           <div>
             {fileList.map((file) => (
               <div key={file.uid}>
-                <div>{file.file.name}</div>
-                <div>{file.file.size}</div>
-                <div
+                <span>{file.file.name}</span>
+                <span>{file.file.size}</span>
+                <span
                   onClick={() =>
                     setFileList((prev) =>
                       prev.filter((x) => x.uid !== file.uid)
@@ -247,11 +276,12 @@ function Demo() {
                   }
                 >
                   x
-                </div>
+                </span>
               </div>
             ))}
           </div>
         </div>
+        <Thumbnails fileList={fileList} />
         <button type="submit">submit</button>
       </form>
     </div>
