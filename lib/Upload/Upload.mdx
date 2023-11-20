@@ -1,0 +1,29 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as UploadStories from "./Upload.stories";
+
+<Meta of={UploadStories} />
+
+# Upload
+
+[https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications](https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications)
+
+隐藏原生 input 元素，自定义上传 UI。
+
+触发文件选择可以通过 label 或者 input.click。由于 html 规范 label 不能包裹 div，为了更好定制 ui 选择后者。
+
+React state 管理 fileList， 展示文件详情和上传
+
+onDrop 实现拖拽上传
+
+xhr.upload 的 progress 事件更新上传进度
+
+URL.createObjectURL 实现图片预览
+
+## Default
+
+<Canvas of={UploadStories.Default} />
+
+## UploadImages
+
+<Canvas of={UploadStories.UploadImages} />
