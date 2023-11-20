@@ -123,52 +123,5 @@ const Content = forwardRef<HTMLDivElement, ContentProps>(function Content(
   );
 });
 
-function Nest() {
-  return (
-    <Root>
-      <Trigger>open</Trigger>
-      <Portal className="fixed top-0 left-0 right-0 bottom-0 bg-black/30 flex items-center justify-center overflow-y-auto">
-        <Content>
-          <Root>
-            <Trigger>open</Trigger>
-            <Portal className="fixed top-0 left-0 right-0 bottom-0 bg-black/30 flex items-center justify-center overflow-y-auto">
-              <Content>
-                <Root>
-                  <Trigger>open</Trigger>
-                  <Portal className="fixed top-0 left-0 right-0 bottom-0 bg-black/30 flex items-center justify-center overflow-y-auto">
-                    <Content>
-                      <div className="h-[800px]"></div>
-                      <Title>Booking info</Title>
-                      <Description>
-                        Please enter the info for your booking below.
-                      </Description>
-                      <Close>close3</Close>
-                    </Content>
-                  </Portal>
-                </Root>
-                <Close>close2</Close>
-              </Content>
-            </Portal>
-          </Root>
-          <Close>close1</Close>
-        </Content>
-      </Portal>
-    </Root>
-  );
-}
-
-function ModalDemo() {
-  return (
-    <Root>
-      <Trigger>open</Trigger>
-      <Portal className="fixed top-0 left-0 right-0 bottom-0 bg-black/30 flex items-center justify-center overflow-y-auto">
-        <Content>
-          <div className="h-[800px]"></div>
-          <div>asfkj</div>
-        </Content>
-      </Portal>
-    </Root>
-  );
-}
-
-export { ModalDemo };
+const Dialog = Root;
+export { useModal, Root, Dialog, Portal, Trigger, Content };

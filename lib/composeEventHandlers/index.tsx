@@ -2,10 +2,14 @@ interface Handler<T extends unknown[]> {
   (...args: T): void;
 }
 
-function composeEventHandlers<T extends unknown[]>(...handlers: Handler<T>[]) {
+function composeEventHandlers<T extends unknown[]>(
+  ...handlers: (Handler<T> | undefined)[]
+) {
   return function composedHandler(...args: T) {
     for (const handler of handlers) {
-      handler(...args);
+      if (typeof handler === "function") {
+        handler(...args);
+      }
     }
   };
 }
