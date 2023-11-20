@@ -16,6 +16,8 @@ import { useComposeRefs } from "../useComposeRefs";
 
 // const baseUrl = "http://localhost:3000";
 
+// https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications
+
 // fetch('/upload', {
 //   method: "POST",
 //   body: formData,
@@ -23,9 +25,9 @@ import { useComposeRefs } from "../useComposeRefs";
 //   // Doing so manually can lead to an error
 // })
 
-// useage
-
-// label not in div
+// 隐藏input元素，自定义上传的UI
+// 触发上传可以用label或者input.click
+// html规范label里不能包裹div，所以选择visuallyhidden + input.click
 
 interface UploadContextValue {
   getFileList: () => FileWithId[];
@@ -48,6 +50,7 @@ type HTTPMethods =
   | "HEAD"
   | "CONNECT"
   | "TRACE";
+
 interface UploadProps {
   children: ReactNode;
   name: string;
@@ -152,46 +155,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Upload(
   );
 });
 
-function formatSize(size: number) {
-  const units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
-  const exponent = Math.min(
-    Math.floor(Math.log(size) / Math.log(1024)),
-    units.length - 1
-  );
-  const approx = size / 1024 ** exponent;
-  const output =
-    exponent === 0
-      ? `${size} bytes`
-      : `${approx.toFixed(3)} ${units[exponent]}`;
-
-  return output;
-}
-
-function Details() {
-  const { getFileList, removeFile } = useUpload("Input");
-  const fileList = getFileList();
-  console.log(fileList);
-  return (
-    <div>
-      {fileList.map((file) => (
-        <div key={file.uid}>
-          {file.file.type.match(
-            /image\/png|image\/jpeg|imagesvg\+xml|image\/gif|image\/svg\+xml/
-          ) && (
-            <img
-              src={URL.createObjectURL(file.file)}
-              style={{ width: 100, height: 100, objectFit: "contain" }}
-            />
-          )}
-          <span>{file.file.name}</span>
-          <span>({formatSize(file.file.size)})</span>
-          <button onClick={() => removeFile(file.uid)}>remove</button>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 interface ActionProps {
   children: (props: {
     progress: number;
@@ -201,7 +164,7 @@ interface ActionProps {
   }) => ReactNode;
 }
 
-type Status = "idle" | "pending" | "success" | "error";
+type Status = "idle" | "pending" | "success" | "error" | "cancelled";
 
 function Action(props: ActionProps) {
   const { children } = props;
@@ -242,6 +205,9 @@ function Action(props: ActionProps) {
     xhr.addEventListener("loadstart", () => {
       setStatus("pending");
     });
+    xhr.addEventListener("abort", () => {
+      setStatus("cancelled");
+    });
     if (xhr) {
       xhr.overrideMimeType("text/plain; charset=x-user-defined-binary");
       xhr.open(method, url);
@@ -266,30 +232,6 @@ interface FileWithId {
   uid: string;
 }
 
-// function Demo() {
-//   return (
-//     <div>
-//       <Upload name="avatar" url={baseUrl + "/upload"}>
-//         <Input enableDrop multiple>
-//           <div>custom upload</div>
-//         </Input>
-//         <Details />
-//         <Action>
-//           {({ upload, abort, progress, status }) => (
-//             <div>
-//               <button onClick={upload}>upload</button>
-//               <button onClick={abort}>abort</button>
-//               {status === "pending" && <span>{progress}%</span>}
-//               <span>{status}</span>
-//             </div>
-//           )}
-//         </Action>
-//       </Upload>
-//     </div>
-//   );
-// }
-
 const Root = Upload;
 
-// https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications
-export { Root, Upload, Details, Action, Input };
+export { Root, Upload, Action, Input, useUpload };
