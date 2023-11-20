@@ -1,4 +1,4 @@
-import * as Modal from "../";
+import { Modal } from "../";
 
 export default { title: "Components/Modal" };
 

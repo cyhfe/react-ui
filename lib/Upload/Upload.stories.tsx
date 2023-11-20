@@ -1,4 +1,4 @@
-import * as Upload from "../";
+import { Upload, UploadAction, UploadInput, useUpload } from "../";
 
 export default { title: "Components/Upload" };
 import { MdDeleteOutline } from "react-icons/md";
@@ -22,7 +22,7 @@ function formatSize(size: number) {
 }
 
 function FileList() {
-  const { getFileList, removeFile } = Upload.useUpload("FileList");
+  const { getFileList, removeFile } = useUpload("FileList");
   const fileList = getFileList();
   if (!fileList.length) return <div>No files</div>;
   return (
@@ -48,11 +48,11 @@ function FileList() {
 
 export function Default() {
   return (
-    <Upload.Root name="avatar" url={baseUrl + "/upload"}>
+    <Upload name="avatar" url={baseUrl + "/upload"}>
       <div className="max-w-md">
         <div className="mb-5">
           <div className="mb-2 block text-xl font-semibold">Upload files</div>
-          <Upload.Input multiple>
+          <UploadInput multiple>
             <div className="border border-dashed min-h-[200px] flex items-center justify-center mb-5">
               <div className="text-center">
                 <div className=" mb-2">Drop Files Here</div>
@@ -62,7 +62,7 @@ export function Default() {
                 </button>
               </div>
             </div>
-          </Upload.Input>
+          </UploadInput>
         </div>
 
         <div className="mb-5">
@@ -72,7 +72,7 @@ export function Default() {
 
         <div className="mb-5">
           <div className="mb-2 block text-xl font-semibold">Actions</div>
-          <Upload.Action>
+          <UploadAction>
             {({ upload, abort, progress, status }) => (
               <div>
                 <div className="flex gap-x-2 mb-2">
@@ -93,15 +93,15 @@ export function Default() {
                 <div>status: {<span>{status}</span>}</div>
               </div>
             )}
-          </Upload.Action>
+          </UploadAction>
         </div>
       </div>
-    </Upload.Root>
+    </Upload>
   );
 }
 
 function ImageList() {
-  const { getFileList, removeFile } = Upload.useUpload("FileList");
+  const { getFileList, removeFile } = useUpload("FileList");
   const fileList = getFileList();
   return (
     <div className="flex gap-2 flex-wrap">
@@ -118,21 +118,21 @@ function ImageList() {
           />
         </div>
       ))}
-      <Upload.Input multiple accept="image/*">
+      <UploadInput multiple accept="image/*">
         <div className="border  rounded border-dashed w-28 h-28 flex items-center justify-center">
           <div className="flex flex-col items-center justify-center">
             <LuHardDriveUpload className="mb-2" />
             <div>upload</div>
           </div>
         </div>
-      </Upload.Input>
+      </UploadInput>
     </div>
   );
 }
 
 export function UploadImages() {
   return (
-    <Upload.Root name="avatar" url={baseUrl + "/upload"}>
+    <Upload name="avatar" url={baseUrl + "/upload"}>
       <div className="max-w-md">
         <div className="mb-5">
           <div className="mb-2 block text-xl font-semibold">Upload Images</div>
@@ -141,7 +141,7 @@ export function UploadImages() {
 
         <div className="mb-5">
           <div className="mb-2 block text-xl font-semibold">Actions</div>
-          <Upload.Action>
+          <UploadAction>
             {({ upload, abort, progress, status }) => (
               <div>
                 <div className="flex gap-x-2 mb-2">
@@ -162,9 +162,9 @@ export function UploadImages() {
                 <div>status: {<span>{status}</span>}</div>
               </div>
             )}
-          </Upload.Action>
+          </UploadAction>
         </div>
       </div>
-    </Upload.Root>
+    </Upload>
   );
 }

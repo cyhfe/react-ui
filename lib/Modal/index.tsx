@@ -7,10 +7,10 @@ import React, {
   useCallback,
 } from "react";
 
-import { createContext } from "../lib/createContext";
-import { useControllableState } from "../lib/useControllableState";
-import { Portal as PortalBase } from "../lib/Portal";
-import { composeEventHandlers } from "../lib/composeEventHandlers";
+import { createContext } from "../createContext";
+import { useControllableState } from "../useControllableState";
+import { Portal as PortalBase } from "../Portal";
+import { composeEventHandlers } from "../composeEventHandlers";
 
 interface ModalContextValue {
   open: boolean;
@@ -123,12 +123,9 @@ const Content = forwardRef<HTMLDivElement, ContentProps>(function Content(
   );
 });
 
-const Dialog = {
-  Root,
-  Portal,
-  Trigger,
-  Content,
-  useModal,
-};
+const Modal = Root;
+const ModalPortal = Portal;
+const ModalTrigger = Trigger;
+const ModalContent = Content;
 
-export { Dialog };
+export { Modal, ModalPortal, ModalTrigger, ModalContent, useModal };

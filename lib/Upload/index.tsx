@@ -58,7 +58,7 @@ interface UploadProps {
   method?: HTTPMethods;
 }
 
-function Upload(props: UploadProps) {
+function Root(props: UploadProps) {
   const [fileList, setFileList] = useState<FileWithId[]>([]);
   const { children, name, url = "/", method = "POST" } = props;
 
@@ -142,7 +142,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Upload(
           e.stopPropagation();
         }}
         onDrop={(e) => {
-          if (!enableDrop) return;
           e.preventDefault();
           e.stopPropagation();
           const dt = e.dataTransfer;
@@ -232,6 +231,8 @@ interface FileWithId {
   uid: string;
 }
 
-const Root = Upload;
+const Upload = Root;
+const UploadAction = Action;
+const UploadInput = Input;
 
-export { Root, Upload, Action, Input, useUpload };
+export { Upload, UploadAction, UploadInput, useUpload };

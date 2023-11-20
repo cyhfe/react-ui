@@ -4,5 +4,11 @@ export { Slot } from "./Slot";
 export { VisuallyHidden } from "./VisuallyHidden";
 export { createContext } from "./createContext";
 export { useId } from "./useId";
-export { Upload, Action, Input } from "./Upload";
-export { useModal, Dialog, Portal, Trigger, Content } from "./Modal";
+export { Upload, UploadAction, UploadInput, useUpload } from "./Upload";
+export {
+  Modal,
+  ModalPortal,
+  ModalTrigger,
+  ModalContent,
+  useModal,
+} from "./Modal";
