@@ -2,6 +2,7 @@ import * as Upload from "./";
 
 export default { title: "Components/Upload" };
 import { MdDeleteOutline } from "react-icons/md";
+import { LuHardDriveUpload } from "react-icons/lu";
 
 const baseUrl = "http://localhost:3000";
 
@@ -18,31 +19,6 @@ function formatSize(size: number) {
       : `${approx.toFixed(3)} ${units[exponent]}`;
 
   return output;
-}
-
-function Details() {
-  const { getFileList, removeFile } = useUpload("Input");
-  const fileList = getFileList();
-  console.log(fileList);
-  return (
-    <div>
-      {fileList.map((file) => (
-        <div key={file.uid}>
-          {file.file.type.match(
-            /image\/png|image\/jpeg|imagesvg\+xml|image\/gif|image\/svg\+xml/
-          ) && (
-            <img
-              src={URL.createObjectURL(file.file)}
-              style={{ width: 100, height: 100, objectFit: "contain" }}
-            />
-          )}
-          <span>{file.file.name}</span>
-          <span>({formatSize(file.file.size)})</span>
-          <button onClick={() => removeFile(file.uid)}>remove</button>
-        </div>
-      ))}
-    </div>
-  );
 }
 
 function FileList() {
@@ -92,6 +68,75 @@ export function Default() {
         <div className="mb-5">
           <div className="mb-2 block text-xl font-semibold">FileList</div>
           <FileList />
+        </div>
+
+        <div className="mb-5">
+          <div className="mb-2 block text-xl font-semibold">Actions</div>
+          <Upload.Action>
+            {({ upload, abort, progress, status }) => (
+              <div>
+                <div className="flex gap-x-2 mb-2">
+                  <button
+                    onClick={upload}
+                    className="border px-2 py-1 rounded bg-slate-950 text-white"
+                  >
+                    upload
+                  </button>
+                  <button
+                    onClick={abort}
+                    className="border px-2 py-1 rounded bg-red-500 text-white"
+                  >
+                    abort
+                  </button>
+                </div>
+                <div>progress: {<span>{progress}%</span>}</div>
+                <div>status: {<span>{status}</span>}</div>
+              </div>
+            )}
+          </Upload.Action>
+        </div>
+      </div>
+    </Upload.Root>
+  );
+}
+
+function ImageList() {
+  const { getFileList, removeFile } = Upload.useUpload("FileList");
+  const fileList = getFileList();
+  return (
+    <div className="flex gap-2 flex-wrap">
+      {fileList.map((file) => (
+        <div
+          className="border  rounded w-28 h-28 flex items-center justify-center"
+          key={file.uid}
+        >
+          <img
+            className="object-scale-down w-28 h-28"
+            src={URL.createObjectURL(file.file)}
+            alt={file.file.name}
+            onClick={() => removeFile(file.uid)}
+          />
+        </div>
+      ))}
+      <Upload.Input multiple accept="image/*">
+        <div className="border  rounded border-dashed w-28 h-28 flex items-center justify-center">
+          <div className="flex flex-col items-center justify-center">
+            <LuHardDriveUpload className="mb-2" />
+            <div>upload</div>
+          </div>
+        </div>
+      </Upload.Input>
+    </div>
+  );
+}
+
+export function UploadImages() {
+  return (
+    <Upload.Root name="avatar" url={baseUrl + "/upload"}>
+      <div className="max-w-md">
+        <div className="mb-5">
+          <div className="mb-2 block text-xl font-semibold">Upload Images</div>
+          <ImageList />
         </div>
 
         <div className="mb-5">
