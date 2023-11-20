@@ -1,13 +1,13 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren } from "react";
 
 type ContextProvider<T> = React.FC<PropsWithChildren<T>>;
 
 function createContext<ContextValueType extends object | null>(
   rootComponentName: string,
-  defaultContextValue?: ContextValueType,
+  defaultContextValue?: ContextValueType
 ): [
   ContextProvider<ContextValueType>,
-  (consumerComponentName: string) => ContextValueType,
+  (consumerComponentName: string) => ContextValueType
 ] {
   const Ctx = React.createContext(defaultContextValue);
 
@@ -29,7 +29,7 @@ function createContext<ContextValueType extends object | null>(
     if (context) return context;
     if (defaultContextValue) return defaultContextValue;
     throw Error(
-      `${callerComponentName} must be rendered inside of a ${rootComponentName} component.`,
+      `${callerComponentName} must be rendered inside of a ${rootComponentName} component.`
     );
   }
 

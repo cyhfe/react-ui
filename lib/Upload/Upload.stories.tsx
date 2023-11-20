@@ -1,4 +1,4 @@
-import * as Upload from "./";
+import * as Upload from "../";
 
 export default { title: "Components/Upload" };
 import { MdDeleteOutline } from "react-icons/md";

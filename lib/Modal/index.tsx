@@ -123,5 +123,12 @@ const Content = forwardRef<HTMLDivElement, ContentProps>(function Content(
   );
 });
 
-const Dialog = Root;
-export { useModal, Root, Dialog, Portal, Trigger, Content };
+const Dialog = {
+  Root,
+  Portal,
+  Trigger,
+  Content,
+  useModal,
+};
+
+export { Dialog };
