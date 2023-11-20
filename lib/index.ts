@@ -4,4 +4,4 @@ export { Slot } from "./Slot";
 export { VisuallyHidden } from "./VisuallyHidden";
 export { createContext } from "./createContext";
 export { useId } from "./useId";
-export { Root, Upload, Details, Action, Input } from "./Upload";
+export { Root, Upload, Action, Input } from "./Upload";
