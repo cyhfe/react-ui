@@ -3,7 +3,6 @@
 
 import React, {
   ComponentPropsWithoutRef,
-  HTMLAttributes,
   ReactNode,
   forwardRef,
   useCallback,
