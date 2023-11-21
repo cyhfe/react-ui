@@ -5,12 +5,15 @@ import React, {
   ComponentPropsWithoutRef,
   forwardRef,
   useCallback,
+  useState,
 } from "react";
-
+import { motion, AnimatePresence } from "framer-motion";
 import { createContext } from "../lib/createContext";
 import { useControllableState } from "../lib/useControllableState";
 import { Portal as PortalBase } from "../lib/Portal";
 import { composeEventHandlers } from "../lib/composeEventHandlers";
+import { Slot } from "../lib/Slot";
+import { createPortal } from "react-dom";
 
 interface ModalContextValue {
   open: boolean;
@@ -36,7 +39,7 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(
     open: value,
     onOpenChange: onChange,
     defaultOpen: defaultValue,
-    clickOverlayToClose = false,
+    clickOverlayToClose = true,
     ...rest
   } = props;
   const [open = false, setOpen] = useControllableState({
@@ -59,7 +62,8 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(
 interface PortalProps extends ComponentPropsWithoutRef<"div"> {}
 
 const Portal = forwardRef<HTMLDivElement, PortalProps>(function Portal(
-  props: PortalProps
+  props: PortalProps,
+  forwardRef
 ) {
   const { open, setOpen, clickOverlayToClose } = useModal("Portal");
   const { children, onClick, ...rest } = props;
@@ -73,9 +77,9 @@ const Portal = forwardRef<HTMLDivElement, PortalProps>(function Portal(
     [clickOverlayToClose, setOpen]
   );
   const composedHandleClick = composeEventHandlers(handleClick, onClick);
-  if (!open) return null;
+  // if (!open) return null;
   return (
-    <PortalBase {...rest} onClick={composedHandleClick}>
+    <PortalBase {...rest} ref={forwardRef}>
       {children}
     </PortalBase>
   );
@@ -97,6 +101,24 @@ const Trigger = forwardRef<HTMLDivElement, TriggerProps>(function Trigger(
     <div {...rest} onClick={composedHandleClick} ref={forwardRef}>
       {children}
     </div>
+  );
+});
+
+const Close = forwardRef<HTMLDivElement, TriggerProps>(function Trigger(
+  props,
+  forwardRef
+) {
+  const { setOpen } = useModal("Close");
+  const { children, onClick, ...rest } = props;
+  const handleClick: React.MouseEventHandler<HTMLDivElement> =
+    useCallback(() => {
+      setOpen(false);
+    }, [setOpen]);
+  const composedHandleClick = composeEventHandlers(handleClick, onClick);
+  return (
+    <Slot {...rest} onClick={composedHandleClick} ref={forwardRef}>
+      {children}
+    </Slot>
   );
 });
 
@@ -123,51 +145,36 @@ const Content = forwardRef<HTMLDivElement, ContentProps>(function Content(
   );
 });
 
-function Nest() {
-  return (
-    <Root>
-      <Trigger>open</Trigger>
-      <Portal className="fixed top-0 left-0 right-0 bottom-0 bg-black/30 flex items-center justify-center overflow-y-auto">
-        <Content>
-          <Root>
-            <Trigger>open</Trigger>
-            <Portal className="fixed top-0 left-0 right-0 bottom-0 bg-black/30 flex items-center justify-center overflow-y-auto">
-              <Content>
-                <Root>
-                  <Trigger>open</Trigger>
-                  <Portal className="fixed top-0 left-0 right-0 bottom-0 bg-black/30 flex items-center justify-center overflow-y-auto">
-                    <Content>
-                      <div className="h-[800px]"></div>
-                      <Title>Booking info</Title>
-                      <Description>
-                        Please enter the info for your booking below.
-                      </Description>
-                      <Close>close3</Close>
-                    </Content>
-                  </Portal>
-                </Root>
-                <Close>close2</Close>
-              </Content>
-            </Portal>
-          </Root>
-          <Close>close1</Close>
-        </Content>
-      </Portal>
-    </Root>
-  );
-}
+const Modal = Root;
+const ModalPortal = Portal;
+const ModalTrigger = Trigger;
+const ModalContent = Content;
+const ModalClose = Close;
+
+export { Modal, ModalPortal, ModalTrigger, ModalContent, useModal, ModalClose };
 
 function ModalDemo() {
+  const [toggle, setToggle] = useState(false);
+  const [forceMount, setForceMount] = useState(true);
+  const isVisible = forceMount || toggle;
   return (
-    <Root>
-      <Trigger>open</Trigger>
-      <Portal className="fixed top-0 left-0 right-0 bottom-0 bg-black/30 flex items-center justify-center overflow-y-auto">
-        <Content>
-          <div className="h-[800px]"></div>
-          <div>asfkj</div>
-        </Content>
-      </Portal>
-    </Root>
+    <div>
+      <div onClick={() => setToggle((prev) => !prev)}>trigger</div>
+      {isVisible &&
+        createPortal(
+          <AnimatePresence onExitComplete={() => setForceMount(false)}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              123
+            </motion.div>
+          </AnimatePresence>,
+
+          document.body
+        )}
+    </div>
   );
 }
 

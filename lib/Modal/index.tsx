@@ -3,6 +3,8 @@
 
 import React, {
   ComponentPropsWithoutRef,
+  HTMLAttributes,
+  ReactNode,
   forwardRef,
   useCallback,
 } from "react";
@@ -57,14 +59,33 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(
     </ModalProvider>
   );
 });
-interface PortalProps extends ComponentPropsWithoutRef<"div"> {}
+interface PortalProps extends ComponentPropsWithoutRef<"div"> {
+  children: ReactNode;
+}
 
 const Portal = forwardRef<HTMLDivElement, PortalProps>(function Portal(
   props: PortalProps,
   forwardRef
 ) {
-  const { open, setOpen, clickOverlayToClose } = useModal("Portal");
-  const { children, onClick, ...rest } = props;
+  const { open } = useModal("Portal");
+
+  if (!open) return null;
+  return <PortalBase {...props} ref={forwardRef} />;
+});
+
+interface OverlayProps extends ComponentPropsWithoutRef<"div"> {
+  render?: (props: {
+    clickToClose: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    open: boolean;
+  }) => ReactNode;
+}
+
+const Overlay = forwardRef<HTMLDivElement, OverlayProps>(function Overlay(
+  props: OverlayProps,
+  forwardRef
+) {
+  const { open, setOpen, clickOverlayToClose } = useModal("Overlay");
+  const { children, onClick, render, ...rest } = props;
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (clickOverlayToClose) {
@@ -75,11 +96,14 @@ const Portal = forwardRef<HTMLDivElement, PortalProps>(function Portal(
     [clickOverlayToClose, setOpen]
   );
   const composedHandleClick = composeEventHandlers(handleClick, onClick);
+  if (render) {
+    return render({ clickToClose: handleClick, open });
+  }
   if (!open) return null;
   return (
-    <PortalBase {...rest} onClick={composedHandleClick} ref={forwardRef}>
+    <div {...rest} onClick={composedHandleClick} ref={forwardRef}>
       {children}
-    </PortalBase>
+    </div>
   );
 });
 
@@ -148,5 +172,14 @@ const ModalPortal = Portal;
 const ModalTrigger = Trigger;
 const ModalContent = Content;
 const ModalClose = Close;
+const ModalOverlay = Overlay;
 
-export { Modal, ModalPortal, ModalTrigger, ModalContent, useModal, ModalClose };
+export {
+  Modal,
+  ModalPortal,
+  ModalTrigger,
+  ModalContent,
+  useModal,
+  ModalClose,
+  ModalOverlay,
+};

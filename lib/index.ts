@@ -11,5 +11,6 @@ export {
   ModalTrigger,
   ModalContent,
   ModalClose,
+  ModalOverlay,
   useModal,
 } from "./Modal";
