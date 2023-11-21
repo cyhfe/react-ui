@@ -1,17 +1,23 @@
-import { ComponentPropsWithoutRef, forwardRef } from "react";
+import { HTMLAttributes, forwardRef } from "react";
 import { createPortal } from "react-dom";
-
-interface PortalProps extends ComponentPropsWithoutRef<"div"> {
+import { Slot } from "..";
+// import { Slot } from "..";
+interface PortalProps extends HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
   container?: Element | DocumentFragment;
 }
 
-const Portal = forwardRef<HTMLDivElement, PortalProps>(function Portal(
+const Portal = forwardRef<HTMLElement, PortalProps>(function Portal(
   props: PortalProps,
   forwardRef
 ) {
-  const { container = document.body, ...rest } = props;
-  return createPortal(<div {...rest} ref={forwardRef} />, container);
+  const { container = document.body, children, ...rest } = props;
+  const child = (
+    <Slot ref={forwardRef} {...rest}>
+      {children}
+    </Slot>
+  );
+  return createPortal(child, container);
 });
 
 export { Portal };

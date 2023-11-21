@@ -60,7 +60,8 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(
 interface PortalProps extends ComponentPropsWithoutRef<"div"> {}
 
 const Portal = forwardRef<HTMLDivElement, PortalProps>(function Portal(
-  props: PortalProps
+  props: PortalProps,
+  forwardRef
 ) {
   const { open, setOpen, clickOverlayToClose } = useModal("Portal");
   const { children, onClick, ...rest } = props;
@@ -76,7 +77,7 @@ const Portal = forwardRef<HTMLDivElement, PortalProps>(function Portal(
   const composedHandleClick = composeEventHandlers(handleClick, onClick);
   if (!open) return null;
   return (
-    <PortalBase {...rest} onClick={composedHandleClick}>
+    <PortalBase {...rest} onClick={composedHandleClick} ref={forwardRef}>
       {children}
     </PortalBase>
   );
