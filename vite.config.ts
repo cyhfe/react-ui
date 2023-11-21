@@ -12,7 +12,7 @@ export default defineConfig({
       formats: ["es", "cjs"],
     },
     rollupOptions: {
-      external: ["react", "react/jsx-runtime"],
+      external: ["react", "react/jsx-runtime", "react-dom"],
     },
   },
   plugins: [react(), dts({ rollupTypes: true })],

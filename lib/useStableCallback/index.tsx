@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import { useCallback, useLayoutEffect, useRef } from "react";
 
 /**
  * Converts a callback to a ref to avoid triggering re-renders when passed as a
@@ -7,20 +7,20 @@ import React, { useLayoutEffect } from 'react';
  */
 
 function useStableCallback<T extends (...args: any[]) => any>(
-  callback: T | null | undefined,
+  callback: T | null | undefined
 ) {
-  const callbackRef = React.useRef(callback);
+  const callbackRef = useRef(callback);
 
   useLayoutEffect(() => {
     callbackRef.current = callback;
   });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return React.useCallback(
+  return useCallback(
     ((...args) => {
       return callbackRef.current && callbackRef.current(...args);
     }) as T,
-    [],
+    []
   );
 }
 

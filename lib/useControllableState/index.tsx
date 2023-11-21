@@ -1,4 +1,11 @@
-import * as React from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useStableCallback } from "../useStableCallback";
 
 type UseControllableStateParams<T> = {
@@ -23,20 +30,19 @@ function useControllableState<T>({
   const state = isControlled ? value : uncontrolledState;
   const handleChange = useStableCallback(onChange);
 
-  const setState: React.Dispatch<React.SetStateAction<T | undefined>> =
-    React.useCallback(
-      (nextValue) => {
-        if (isControlled) {
-          const setter = nextValue as SetStateFn<T>;
-          const value =
-            typeof nextValue === "function" ? setter(state) : nextValue;
-          if (value !== state) handleChange(value as T);
-        } else {
-          setUncontrolledState(nextValue);
-        }
-      },
-      [isControlled, state, handleChange, setUncontrolledState]
-    );
+  const setState: Dispatch<SetStateAction<T | undefined>> = useCallback(
+    (nextValue) => {
+      if (isControlled) {
+        const setter = nextValue as SetStateFn<T>;
+        const value =
+          typeof nextValue === "function" ? setter(state) : nextValue;
+        if (value !== state) handleChange(value as T);
+      } else {
+        setUncontrolledState(nextValue);
+      }
+    },
+    [isControlled, state, handleChange, setUncontrolledState]
+  );
 
   return [state, setState] as const;
 }
@@ -46,12 +52,12 @@ function useUncontrolledState<T>({
   defaultValue,
   onChange,
 }: Omit<UseControllableStateParams<T>, "prop">) {
-  const uncontrolledState = React.useState<T | undefined>(defaultValue);
+  const uncontrolledState = useState<T | undefined>(defaultValue);
   const [value] = uncontrolledState;
-  const prevValueRef = React.useRef(value);
+  const prevValueRef = useRef(value);
   const handleChange = useStableCallback(onChange);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (prevValueRef.current !== value) {
       handleChange(value as T);
       prevValueRef.current = value;

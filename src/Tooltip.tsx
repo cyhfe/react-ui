@@ -13,6 +13,7 @@ import {
   autoUpdate,
   FloatingArrow,
   arrow,
+  offset,
 } from "@floating-ui/react";
 interface TooltipTriggerProps {
   children: ReactNode;
@@ -44,51 +45,48 @@ const TooltipContent = forwardRef<HTMLDivElement, TooltipContentProps>(
   }
 );
 
-// interface TooltipContentProps {
-//   children: ReactNode;
-// }
-// function TooltipContent(props: TooltipContentProps) {
-//   const { children, ...rest } = props;
-//   return <div {...rest}>{children}</div>;
-// }
-
 function TooltipDemo() {
   const arrowRef = useRef(null);
 
   const [isOpen, setIsOpen] = useState(false);
+  const ARROW_HEIGHT = 7;
+  const GAP = 2;
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
     whileElementsMounted: autoUpdate,
+    placement: "bottom-start",
 
     middleware: [
+      offset(ARROW_HEIGHT + GAP),
       arrow({
         element: arrowRef,
       }),
     ],
   });
   return (
-    <div className="">
-      {/* <div className="min-h-[600px]"></div> */}
-      <div className="flex items-center justify-center">
+    <div className="h-screen">
+      <div className="flex items-center justify-center h-full">
         <TooltipTrigger
           ref={refs.setReference}
           onClick={() => setIsOpen((prev) => !prev)}
         >
-          {/* <textarea defaultValue={""} className="resize"></textarea> */}
           <button>trigger</button>
         </TooltipTrigger>
       </div>
       {isOpen && (
         <TooltipContent ref={refs.setFloating} style={floatingStyles}>
-          <div className="bg-black/50 text-white px-2 py-1 rounded">
-            <FloatingArrow ref={arrowRef} context={context}></FloatingArrow>
+          <div className="bg-blue-500 text-white px-2 py-1 rounded">
+            <FloatingArrow
+              ref={arrowRef}
+              context={context}
+              className="fill-blue-500"
+            ></FloatingArrow>
             content
           </div>
         </TooltipContent>
       )}
-      {/* <div className="min-h-[600px]"></div> */}
     </div>
   );
 }

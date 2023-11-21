@@ -1,19 +1,19 @@
-import React from 'react';
+import { MutableRefObject, Ref, useCallback } from "react";
 
-type PossibleRef<T> = React.Ref<T> | undefined;
+type PossibleRef<T> = Ref<T> | undefined;
 
 function useComposeRefs<T>(...refs: PossibleRef<T>[]) {
-  return React.useCallback(
+  return useCallback(
     function composedRef(node: T) {
       for (const ref of refs) {
-        if (typeof ref === 'function') {
+        if (typeof ref === "function") {
           ref(node);
         } else if (ref !== null && ref !== undefined) {
-          (ref as React.MutableRefObject<T>).current = node;
+          (ref as MutableRefObject<T>).current = node;
         }
       }
     },
-    [refs],
+    [refs]
   );
 }
 

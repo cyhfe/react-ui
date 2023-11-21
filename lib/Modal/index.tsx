@@ -11,7 +11,7 @@ import { createContext } from "../createContext";
 import { useControllableState } from "../useControllableState";
 import { Portal as PortalBase } from "../Portal";
 import { composeEventHandlers } from "../composeEventHandlers";
-import { Slot } from "..";
+import { Slot } from "../Slot";
 
 interface ModalContextValue {
   open: boolean;

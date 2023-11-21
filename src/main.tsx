@@ -11,7 +11,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     {/* <App /> */}
     {/* <Demo /> */}
-    {/* <ModalDemo /> */}
-    <TooltipDemo />
+    <ModalDemo />
+    {/* <TooltipDemo /> */}
   </React.StrictMode>
 );

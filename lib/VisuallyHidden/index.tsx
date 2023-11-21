@@ -1,5 +1,7 @@
+import { ReactNode } from "react";
+
 interface VisiuallyHiddenProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 function VisuallyHidden({ children }: VisiuallyHiddenProps) {

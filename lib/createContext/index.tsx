@@ -1,6 +1,12 @@
-import React, { PropsWithChildren } from "react";
+import {
+  FC,
+  PropsWithChildren,
+  createContext as ReactCreateContext,
+  useContext as ReactUseContext,
+  useMemo,
+} from "react";
 
-type ContextProvider<T> = React.FC<PropsWithChildren<T>>;
+type ContextProvider<T> = FC<PropsWithChildren<T>>;
 
 function createContext<ContextValueType extends object | null>(
   rootComponentName: string,
@@ -9,14 +15,14 @@ function createContext<ContextValueType extends object | null>(
   ContextProvider<ContextValueType>,
   (consumerComponentName: string) => ContextValueType
 ] {
-  const Ctx = React.createContext(defaultContextValue);
+  const Ctx = ReactCreateContext(defaultContextValue);
 
   function Provider(props: PropsWithChildren<ContextValueType>) {
     const { children, ...context } = props;
 
     const deps = Object.values(context);
 
-    const value = React.useMemo(() => {
+    const value = useMemo(() => {
       return context;
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, deps) as ContextValueType;
@@ -25,7 +31,7 @@ function createContext<ContextValueType extends object | null>(
   }
 
   function useContext(callerComponentName: string) {
-    const context = React.useContext(Ctx);
+    const context = ReactUseContext(Ctx);
     if (context) return context;
     if (defaultContextValue) return defaultContextValue;
     throw Error(
