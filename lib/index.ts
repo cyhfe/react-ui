@@ -10,5 +10,6 @@ export {
   ModalPortal,
   ModalTrigger,
   ModalContent,
+  ModalClose,
   useModal,
 } from "./Modal";

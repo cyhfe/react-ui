@@ -11,6 +11,7 @@ import { createContext } from "../createContext";
 import { useControllableState } from "../useControllableState";
 import { Portal as PortalBase } from "../Portal";
 import { composeEventHandlers } from "../composeEventHandlers";
+import { Slot } from "..";
 
 interface ModalContextValue {
   open: boolean;
@@ -36,7 +37,7 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(
     open: value,
     onOpenChange: onChange,
     defaultOpen: defaultValue,
-    clickOverlayToClose = false,
+    clickOverlayToClose = true,
     ...rest
   } = props;
   const [open = false, setOpen] = useControllableState({
@@ -100,6 +101,24 @@ const Trigger = forwardRef<HTMLDivElement, TriggerProps>(function Trigger(
   );
 });
 
+const Close = forwardRef<HTMLDivElement, TriggerProps>(function Trigger(
+  props,
+  forwardRef
+) {
+  const { setOpen } = useModal("Close");
+  const { children, onClick, ...rest } = props;
+  const handleClick: React.MouseEventHandler<HTMLDivElement> =
+    useCallback(() => {
+      setOpen(false);
+    }, [setOpen]);
+  const composedHandleClick = composeEventHandlers(handleClick, onClick);
+  return (
+    <Slot {...rest} onClick={composedHandleClick} ref={forwardRef}>
+      {children}
+    </Slot>
+  );
+});
+
 interface ContentProps extends ComponentPropsWithoutRef<"div"> {}
 const Content = forwardRef<HTMLDivElement, ContentProps>(function Content(
   props,
@@ -127,5 +146,6 @@ const Modal = Root;
 const ModalPortal = Portal;
 const ModalTrigger = Trigger;
 const ModalContent = Content;
+const ModalClose = Close;
 
-export { Modal, ModalPortal, ModalTrigger, ModalContent, useModal };
+export { Modal, ModalPortal, ModalTrigger, ModalContent, useModal, ModalClose };
