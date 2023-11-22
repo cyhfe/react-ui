@@ -17,6 +17,8 @@ import {
   useId,
   useTransitionStyles,
   FloatingDelayGroup,
+  FloatingArrow,
+  arrow,
 } from "@floating-ui/react";
 
 import type { Placement } from "@floating-ui/react";
@@ -26,13 +28,17 @@ interface TooltipOptions {
   placement?: Placement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  showArrow?: boolean;
+  arrowColor?: string;
 }
 
 export function useTooltip({
   initialOpen = false,
-  placement = "top",
+  placement = "bottom",
   open: controlledOpen,
   onOpenChange: setControlledOpen,
+  showArrow = true,
+  arrowColor = "black",
 }: TooltipOptions = {}) {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
 
@@ -41,12 +47,24 @@ export function useTooltip({
 
   const { delay } = useDelayGroupContext();
 
+  const arrowRef = React.useRef(null);
+
+  const ARROW_HEIGHT = 7;
+  const GAP = 2;
+
   const data = useFloating({
     placement,
     open,
     onOpenChange: setOpen,
     whileElementsMounted: autoUpdate,
-    middleware: [offset(5), flip(), shift()],
+    middleware: [
+      offset(ARROW_HEIGHT + GAP),
+      flip(),
+      shift(),
+      arrow({
+        element: arrowRef,
+      }),
+    ],
   });
 
   const context = data.context;
@@ -68,10 +86,13 @@ export function useTooltip({
     () => ({
       open,
       setOpen,
+      arrowRef,
+      showArrow,
+      arrowColor,
       ...interactions,
       ...data,
     }),
-    [open, setOpen, interactions, data]
+    [open, setOpen, showArrow, arrowColor, interactions, data]
   );
 }
 
@@ -177,7 +198,16 @@ const TooltipContent = React.forwardRef<
           ...styles,
         }}
         {...state.getFloatingProps(props)}
-      />
+      >
+        {state.showArrow && (
+          <FloatingArrow
+            context={state.context}
+            ref={state.arrowRef}
+            fill={state.arrowColor}
+          />
+        )}
+        {props.children}
+      </div>
     </FloatingPortal>
   );
 });

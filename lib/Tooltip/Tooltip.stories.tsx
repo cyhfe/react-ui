@@ -2,7 +2,7 @@ import { Tooltip, TooltipContent, TooltipGroup, TooltipTrigger } from ".";
 
 export default { title: "Components/Tooltip" };
 
-export function Group() {
+export function Default() {
   return (
     <div
       style={{
@@ -13,16 +13,29 @@ export function Group() {
     >
       <TooltipGroup delay={200}>
         <Tooltip>
-          <TooltipTrigger>trigger1</TooltipTrigger>
-          <TooltipContent>Label 1</TooltipContent>
+          <TooltipTrigger className="border border-black rounded px-2 py-1">
+            default
+          </TooltipTrigger>
+          <TooltipContent className="bg-black text-white px-2 py-1 text-sm rounded">
+            Label
+          </TooltipContent>
         </Tooltip>
-        <Tooltip>
-          <TooltipTrigger>trigger2</TooltipTrigger>
-          <TooltipContent>Label 2</TooltipContent>
+
+        <Tooltip showArrow={false}>
+          <TooltipTrigger className="border border-black rounded px-2 py-1">
+            hidden arrow
+          </TooltipTrigger>
+          <TooltipContent className="bg-black text-white px-2 py-1 text-sm rounded">
+            Label
+          </TooltipContent>
         </Tooltip>
-        <Tooltip>
-          <TooltipTrigger>trigger3</TooltipTrigger>
-          <TooltipContent>Label 3</TooltipContent>
+        <Tooltip arrowColor="#10b981">
+          <TooltipTrigger className="border border-black rounded px-2 py-1">
+            color
+          </TooltipTrigger>
+          <TooltipContent className="bg-emerald-500 text-white px-2 py-1 text-sm rounded">
+            Label
+          </TooltipContent>
         </Tooltip>
       </TooltipGroup>
     </div>
