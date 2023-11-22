@@ -1,7 +1,9 @@
-import React, { ComponentPropsWithoutRef, forwardRef } from "react";
+import React, { forwardRef } from "react";
 import { createPortal } from "react-dom";
+import type { AsChildPropsWithRef } from "../types";
+import { Slot } from "..";
 
-interface PortalProps extends ComponentPropsWithoutRef<"div"> {
+interface PortalProps extends AsChildPropsWithRef<"div"> {
   children: React.ReactNode;
   container?: Element | DocumentFragment;
 }
@@ -10,8 +12,9 @@ const Portal = forwardRef<HTMLDivElement, PortalProps>(function Portal(
   props: PortalProps,
   forwardRef
 ) {
-  const { container = document.body, ...rest } = props;
-  return createPortal(<div {...rest} ref={forwardRef} />, container);
+  const { container = document.body, asChild, ...rest } = props;
+  const Comp = asChild ? Slot : "div";
+  return createPortal(<Comp {...rest} ref={forwardRef} />, container);
 });
 
 export { Portal };

@@ -8,6 +8,7 @@ import React, {
 
 import { Slot } from "../lib/Slot";
 import { Portal } from "../lib/Portal";
+
 import {
   useFloating,
   autoUpdate,
@@ -15,6 +16,8 @@ import {
   arrow,
   offset,
 } from "@floating-ui/react";
+
+import type { AsChildPropsWithRef } from "../lib/types";
 interface TooltipTriggerProps {
   children: ReactNode;
 }
@@ -32,20 +35,22 @@ const TooltipTrigger = forwardRef<HTMLDivElement, TooltipTriggerProps>(
   }
 );
 
-interface TooltipContentProps extends HTMLAttributes<HTMLElement> {}
+interface TooltipContentProps extends AsChildPropsWithRef<"div"> {}
 const TooltipContent = forwardRef<HTMLDivElement, TooltipContentProps>(
   function TooltipContent(props: TooltipContentProps, forwardRef) {
-    const { children, ...rest } = props;
-
+    const { asChild, ...rest } = props;
+    const Comp = asChild ? Slot : "div";
     return (
-      <Portal ref={forwardRef} {...rest}>
-        {children}
+      <Portal>
+        <Comp {...rest} ref={forwardRef} />
       </Portal>
     );
   }
 );
 
-function TooltipDemo() {
+function Tooltip() {
+  const leavingTimer = useRef<number>();
+  const enterTimer = useRef<number>();
   const arrowRef = useRef(null);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -56,8 +61,6 @@ function TooltipDemo() {
     open: isOpen,
     onOpenChange: setIsOpen,
     whileElementsMounted: autoUpdate,
-    placement: "bottom-start",
-
     middleware: [
       offset(ARROW_HEIGHT + GAP),
       arrow({
@@ -66,27 +69,70 @@ function TooltipDemo() {
     ],
   });
   return (
-    <div className="h-screen">
-      <div className="flex items-center justify-center h-full">
+    <div className="">
+      <div className="">
         <TooltipTrigger
           ref={refs.setReference}
-          onClick={() => setIsOpen((prev) => !prev)}
+          onFocus={() => {
+            setIsOpen(true);
+          }}
+          onBlur={() => {
+            setIsOpen(false);
+          }}
+          onMouseEnter={() => {
+            if (enterTimer.current) {
+              clearTimeout(enterTimer.current);
+              enterTimer.current = window.setTimeout(() => {
+                setIsOpen(true);
+              }, 1000);
+            } else {
+              enterTimer.current = window.setTimeout(() => {
+                setIsOpen(true);
+              }, 1000);
+            }
+          }}
+          onMouseLeave={() => {
+            if (enterTimer.current) {
+              clearTimeout(enterTimer.current);
+              enterTimer.current = undefined;
+            }
+            if (leavingTimer.current) {
+              clearTimeout(leavingTimer.current);
+              leavingTimer.current = undefined;
+            } else {
+              leavingTimer.current = window.setTimeout(() => {
+                setIsOpen(false);
+                leavingTimer.current = undefined;
+              }, 300);
+            }
+          }}
         >
           <button>trigger</button>
         </TooltipTrigger>
       </div>
-      {isOpen && (
-        <TooltipContent ref={refs.setFloating} style={floatingStyles}>
-          <div className="bg-blue-500 text-white px-2 py-1 rounded">
+      {true && (
+        <TooltipContent ref={refs.setFloating} style={floatingStyles} asChild>
+          <section className="bg-blue-500 text-white px-2 py-1 rounded">
             <FloatingArrow
               ref={arrowRef}
               context={context}
               className="fill-blue-500"
             ></FloatingArrow>
             content
-          </div>
+          </section>
         </TooltipContent>
       )}
+    </div>
+  );
+}
+
+function TooltipDemo() {
+  return (
+    <div>
+      <Tooltip />
+      <Tooltip />
+      <Tooltip />
+      <Tooltip />
     </div>
   );
 }
