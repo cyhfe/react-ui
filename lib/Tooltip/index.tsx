@@ -212,6 +212,9 @@ const TooltipContent = React.forwardRef<
   );
 });
 
-const TooltipGroup = FloatingDelayGroup;
-
-export { TooltipGroup, Tooltip, TooltipTrigger, TooltipContent };
+export {
+  FloatingDelayGroup as TooltipGroup,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+};

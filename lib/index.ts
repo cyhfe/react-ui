@@ -14,3 +14,10 @@ export {
   ModalOverlay,
   useModal,
 } from "./Modal";
+
+export {
+  TooltipGroup,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "./Tooltip";
