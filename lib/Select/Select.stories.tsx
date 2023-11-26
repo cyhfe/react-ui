@@ -2,6 +2,7 @@ import React, {
   ComponentPropsWithoutRef,
   ReactNode,
   forwardRef,
+  useContext,
   useLayoutEffect,
   useRef,
   useState,
@@ -126,16 +127,42 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
 //     </div>
 //   );
 // }
+import {
+  createDescendantsContext,
+  useDescendant,
+  DescendantProvider,
+} from "../Descendants";
+
+interface DescendantType {
+  element: HTMLDivElement | null;
+  value: string;
+  index: number;
+}
+
+const Ctx = createDescendantsContext<DescendantType>("Test");
+
+function Root({ children }: { children: ReactNode }) {
+  return <DescendantProvider context={Ctx}>{children}</DescendantProvider>;
+}
+
+function Item({ value, index: indexProp }: { value: string; index?: number }) {
+  // const { descendants } = useContext(Ctx);
+  const ref = useRef<HTMLDivElement | null>(null);
+  const index = useDescendant(
+    { element: ref.current, value: value },
+    Ctx,
+    indexProp
+  );
+  return <div ref={ref}>{value + "" + indexProp + " " + index}</div>;
+}
 
 export function Demo() {
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useLayoutEffect(() => {
-    const d = ref.current;
-    if (!d) {
-      console.log(1);
-    }
-  });
-
-  return <div ref={ref}>sd</div>;
+  return (
+    <Root>
+      <Item value="1" />
+      <Item value="2" />
+      <Item value="3" />
+      <Item value="4" />
+    </Root>
+  );
 }

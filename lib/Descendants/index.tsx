@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -39,8 +40,6 @@ function createDescendantsContext<DescendantType extends Descendant>(
 interface DescendantProviderProps<DescendantType extends Descendant> {
   context: Context<DescendantContextValue<DescendantType>>;
   children: ReactNode;
-  items: DescendantType[];
-  set: React.Dispatch<React.SetStateAction<DescendantType[]>>;
 }
 
 function DescendantProvider<DescendantType extends Descendant>({
@@ -49,12 +48,17 @@ function DescendantProvider<DescendantType extends Descendant>({
 }: DescendantProviderProps<DescendantType>) {
   const [descendants, setDescendants] = useState<DescendantType[]>([]);
 
+  useEffect(() => {
+    console.log(descendants);
+  });
+
   const registerDescendant = useCallback(
     ({
       element,
       index: explicitIndex,
       ...rest
     }: Omit<DescendantType, "index"> & { index: number | undefined }) => {
+      console.log(element);
       if (!element) return () => {};
 
       setDescendants((prev) => {
