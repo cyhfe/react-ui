@@ -1,4 +1,4 @@
-export default { title: "Components/Accordion" };
+export default { title: "Components/Accordion", tags: ["autodocs"] };
 import { AnimatePresence, motion } from "framer-motion";
 
 import { useState } from "react";

@@ -10,7 +10,7 @@ import {
 
 import { motion, AnimatePresence } from "framer-motion";
 
-export default { title: "Components/Modal" };
+export default { title: "Components/Modal", tags: ["autodocs"] };
 
 export function Portal() {
   return (
