@@ -19,7 +19,7 @@ interface AccordionRootProps extends ComponentPropsWithoutRef<"div"> {
 interface AccordionContextValue {
   type: "single" | "multiple";
   active?: string;
-  setActive?: (value: string) => void;
+  handleSingleActiveChange?: (value: string) => void;
   collapsible: boolean;
   multiActive?: string[];
   handleMultiActiveChange?: (value: string) => void;
@@ -43,17 +43,29 @@ const AccordionRoot = forwardRef<HTMLDivElement, AccordionRootProps>(
       ...rest
     } = props;
 
-    const [active, setActive] = useControllableState({
+    const [active = defaultValue, setActive] = useControllableState({
       value,
       defaultValue,
       onChange: onValueChange,
     });
 
-    const [multiActive = [], setMultiActive] = useControllableState<string[]>({
-      value: multiValue,
-      defaultValue: defaultMultiValue,
-      onChange: onMultiValueChange,
-    });
+    const [multiActive = defaultMultiValue, setMultiActive] =
+      useControllableState<string[]>({
+        value: multiValue,
+        defaultValue: defaultMultiValue,
+        onChange: onMultiValueChange,
+      });
+
+    const handleSingleActiveChange = useCallback(
+      (value: string) => {
+        if (collapsible && active === value) {
+          setActive?.("");
+        } else {
+          setActive?.(value);
+        }
+      },
+      [active, collapsible, setActive]
+    );
 
     const handleMultiActiveChange = useCallback(
       (value: string) => {
@@ -77,7 +89,7 @@ const AccordionRoot = forwardRef<HTMLDivElement, AccordionRootProps>(
       <AccordionProvider
         type={type}
         active={active}
-        setActive={setActive}
+        handleSingleActiveChange={handleSingleActiveChange}
         collapsible={collapsible}
         multiActive={multiActive}
         handleMultiActiveChange={handleMultiActiveChange}
@@ -117,7 +129,7 @@ interface AccordionTriggerProps extends ComponentPropsWithoutRef<"div"> {}
 const AccordionTrigger = forwardRef<HTMLDivElement, AccordionTriggerProps>(
   function AccordionTrigger(props: AccordionTriggerProps, forwardRef) {
     const { children, ...rest } = props;
-    const { active, setActive, collapsible, handleMultiActiveChange, type } =
+    const { handleSingleActiveChange, handleMultiActiveChange, type } =
       useAccordion("AccordionTrigger");
     const { value } = useAccordionItem("AccordionTrigger");
     return (
@@ -126,11 +138,7 @@ const AccordionTrigger = forwardRef<HTMLDivElement, AccordionTriggerProps>(
         {...rest}
         onClick={() => {
           if (type === "single") {
-            if (collapsible && active === value) {
-              setActive?.("");
-            } else {
-              setActive?.(value);
-            }
+            handleSingleActiveChange?.(value);
           } else {
             handleMultiActiveChange?.(value);
           }
