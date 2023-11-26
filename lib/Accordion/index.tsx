@@ -1,5 +1,5 @@
 import { ComponentPropsWithoutRef, forwardRef, useCallback } from "react";
-import { createContext } from "..";
+import { Slot, createContext } from "..";
 import { useControllableState } from "../useControllableState";
 
 interface AccordionRootProps extends ComponentPropsWithoutRef<"div"> {
@@ -125,15 +125,19 @@ const AccordionItem = forwardRef<HTMLDivElement, AccordionItemProps>(
   }
 );
 
-interface AccordionTriggerProps extends ComponentPropsWithoutRef<"div"> {}
-const AccordionTrigger = forwardRef<HTMLDivElement, AccordionTriggerProps>(
+interface AccordionTriggerProps extends ComponentPropsWithoutRef<"button"> {
+  asChild?: boolean;
+}
+
+const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
   function AccordionTrigger(props: AccordionTriggerProps, forwardRef) {
-    const { children, ...rest } = props;
+    const { children, asChild = false, ...rest } = props;
     const { handleSingleActiveChange, handleMultiActiveChange, type } =
       useAccordion("AccordionTrigger");
     const { value } = useAccordionItem("AccordionTrigger");
+    const Comp = asChild ? Slot : "button";
     return (
-      <div
+      <Comp
         ref={forwardRef}
         {...rest}
         onClick={() => {
@@ -145,25 +149,29 @@ const AccordionTrigger = forwardRef<HTMLDivElement, AccordionTriggerProps>(
         }}
       >
         {children}
-      </div>
+      </Comp>
     );
   }
 );
 
-interface AccordionContentProps extends ComponentPropsWithoutRef<"div"> {}
+interface AccordionContentProps extends ComponentPropsWithoutRef<"div"> {
+  asChild?: boolean;
+}
 const AccordionContent = forwardRef<HTMLDivElement, AccordionContentProps>(
   function AccordionContent(props: AccordionContentProps, forwardRef) {
-    const { children, ...rest } = props;
+    const { children, asChild = false, ...rest } = props;
     const { active, type, multiActive } = useAccordion("AccordionContent");
     const { value } = useAccordionItem("AccordionContent");
 
     if (type === "single" && active !== value) return null;
     if (type === "multiple" && (!multiActive || !multiActive.includes(value)))
       return null;
+
+    const Comp = asChild ? Slot : "div";
     return (
-      <div ref={forwardRef} {...rest}>
+      <Comp ref={forwardRef} {...rest}>
         {children}
-      </div>
+      </Comp>
     );
   }
 );
