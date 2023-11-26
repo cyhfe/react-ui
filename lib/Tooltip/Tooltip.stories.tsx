@@ -1,6 +1,6 @@
 import { Tooltip, TooltipContent, TooltipGroup, TooltipTrigger } from ".";
 
-export default { title: "Components/Tooltip", tags: ["autodocs"] };
+export default { title: "Components/Tooltip" };
 
 export function Default() {
   return (
