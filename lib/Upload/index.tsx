@@ -142,6 +142,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Upload(
           e.stopPropagation();
         }}
         onDrop={(e) => {
+          if (!enableDrop) return;
           e.preventDefault();
           e.stopPropagation();
           const dt = e.dataTransfer;
