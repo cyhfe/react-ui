@@ -1,18 +1,73 @@
-import React, {
-  ComponentPropsWithoutRef,
-  ReactNode,
-  forwardRef,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { Portal } from "../Portal";
-import { createContext } from "..";
-import { useControllableState } from "../useControllableState";
+import * as React from "react";
 
+import {
+  CompoundComponentContext,
+  useCompoundItem,
+  useCompoundParent,
+} from "../useCompound";
+import { Portal } from "../Portal";
 export default { title: "Components/Select" };
 
-export function Demo() {}
+type ItemValue = {
+  value: string;
+  label: string;
+  ref: React.RefObject<HTMLSpanElement>;
+};
+
+function Select({ children }: { children: React.ReactNode }) {
+  const { subitems, contextValue } = useCompoundParent<string, ItemValue>();
+
+  // const selectedLabel = subitems.values()
+
+  React.useEffect(() => {
+    console.log(Array.from(subitems.values()));
+  }, [subitems]);
+
+  return (
+    <CompoundComponentContext.Provider value={contextValue}>
+      <button>{renderValue(selectedOptionsMetadata)}</button>
+      <input />
+      <Portal>{children}</Portal>
+    </CompoundComponentContext.Provider>
+  );
+}
+
+interface OptionProps extends React.ComponentPropsWithoutRef<"span"> {
+  value: string;
+}
+
+function Option(props: OptionProps) {
+  const { value, children } = props;
+  const id = React.useId();
+  const optionRef = React.useRef<HTMLSpanElement>(null);
+  const [selected, setSelected] = React.useState(false);
+
+  const computedLabel =
+    typeof children === "string" ? children : optionRef.current?.innerText;
+
+  useCompoundItem(
+    id,
+    React.useMemo(
+      () => ({ value, label: computedLabel, ref: optionRef, selected }),
+      [computedLabel, selected, value]
+    )
+  );
+
+  return (
+    <span ref={optionRef} onPointerUp={() => setSelected(true)}>
+      {children}
+    </span>
+  );
+}
+
+export function Demo() {
+  return (
+    <Select>
+      <Option value="1">one</Option>
+      <Option value="2">two</Option>
+      <Option value="3">three</Option>
+      <Option value="4">four</Option>
+      <Option value="5">five</Option>
+    </Select>
+  );
+}
