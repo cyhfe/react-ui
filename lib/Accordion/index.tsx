@@ -1,4 +1,9 @@
-import { ComponentPropsWithoutRef, forwardRef, useCallback } from "react";
+import {
+  ComponentPropsWithoutRef,
+  ReactNode,
+  forwardRef,
+  useCallback,
+} from "react";
 import { Slot, createContext } from "..";
 import { useControllableState } from "../useControllableState";
 
@@ -154,8 +159,10 @@ const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
   }
 );
 
-interface AccordionContentProps extends ComponentPropsWithoutRef<"div"> {
+interface AccordionContentProps
+  extends Omit<ComponentPropsWithoutRef<"div">, "children"> {
   asChild?: boolean;
+  children?: ((isOpen: boolean) => ReactNode) | ReactNode;
 }
 const AccordionContent = forwardRef<HTMLDivElement, AccordionContentProps>(
   function AccordionContent(props: AccordionContentProps, forwardRef) {
@@ -163,11 +170,20 @@ const AccordionContent = forwardRef<HTMLDivElement, AccordionContentProps>(
     const { active, type, multiActive } = useAccordion("AccordionContent");
     const { value } = useAccordionItem("AccordionContent");
 
-    if (type === "single" && active !== value) return null;
-    if (type === "multiple" && (!multiActive || !multiActive.includes(value)))
-      return null;
+    const isSingleOpen = type === "single" && active === value;
+    const isMultiOpen =
+      type === "multiple" && !!multiActive && multiActive.includes(value);
+
+    const isOpen = isSingleOpen || isMultiOpen;
+
+    if (typeof children === "function") {
+      return children(isOpen);
+    }
+
+    if (!isOpen) return null;
 
     const Comp = asChild ? Slot : "div";
+
     return (
       <Comp ref={forwardRef} {...rest}>
         {children}
