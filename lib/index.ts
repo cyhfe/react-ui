@@ -21,3 +21,12 @@ export {
   TooltipTrigger,
   TooltipContent,
 } from "./Tooltip";
+
+export {
+  AccordionRoot,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+  useAccordion,
+  useAccordionItem,
+} from "./Accordion";
