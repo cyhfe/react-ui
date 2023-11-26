@@ -101,3 +101,4 @@ function sortSubitems<Key, Subitem extends { ref: React.RefObject<Node> }>(
 }
 
 export { useCompoundParent, CompoundComponentContext };
+export type { CompoundComponentContextValue };
