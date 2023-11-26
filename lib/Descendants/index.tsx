@@ -9,6 +9,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useForceUpdate } from "../useForceUpdate";
 
 type Descendant = {
   element: HTMLElement | null;
@@ -48,9 +49,9 @@ function DescendantProvider<DescendantType extends Descendant>({
 }: DescendantProviderProps<DescendantType>) {
   const [descendants, setDescendants] = useState<DescendantType[]>([]);
 
-  useEffect(() => {
-    console.log(descendants);
-  });
+  // useEffect(() => {
+  //   console.log(descendants);
+  // });
 
   const registerDescendant = useCallback(
     ({
@@ -58,7 +59,9 @@ function DescendantProvider<DescendantType extends Descendant>({
       index: explicitIndex,
       ...rest
     }: Omit<DescendantType, "index"> & { index: number | undefined }) => {
-      console.log(element);
+      element;
+      rest;
+      debugger;
       if (!element) return () => {};
 
       setDescendants((prev) => {
@@ -111,14 +114,23 @@ function useDescendant<DescendantType extends Descendant>(
   context: React.Context<DescendantContextValue<DescendantType>>,
   indexProp?: number
 ) {
+  // descendant;
+  // debugger;
   const { registerDescendant, descendants } = useContext(context);
+  const forceUpdate = useForceUpdate();
+  const index =
+    indexProp ??
+    descendants.findIndex((item) => item.element === descendant.element);
   useLayoutEffect(() => {
-    return registerDescendant({ ...descendant, index: indexProp });
-  }, [descendant, indexProp, registerDescendant]);
+    if (!descendant.element) forceUpdate();
+    // descendant;
+    // debugger;
+    return registerDescendant({
+      ...descendant,
+      index: indexProp,
+    });
+  }, [descendant, forceUpdate, index, indexProp, registerDescendant]);
 
-  const index = descendants.find(
-    (v) => v.element === descendant.element
-  )?.index;
   return index;
 }
 

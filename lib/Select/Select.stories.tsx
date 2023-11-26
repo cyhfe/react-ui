@@ -3,7 +3,9 @@ import React, {
   ReactNode,
   forwardRef,
   useContext,
+  useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -148,11 +150,17 @@ function Root({ children }: { children: ReactNode }) {
 function Item({ value, index: indexProp }: { value: string; index?: number }) {
   // const { descendants } = useContext(Ctx);
   const ref = useRef<HTMLDivElement | null>(null);
-  const index = useDescendant(
-    { element: ref.current, value: value },
-    Ctx,
-    indexProp
-  );
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  // useEffect(() => {
+  //   console.log(element);
+  // }, [element]);
+  // const descendant = useMemo(() => {
+  //   return {
+  //     element,
+  //     value,
+  //   };
+  // }, [element, value]);
+  const index = useDescendant({ element: ref.current, value }, Ctx, indexProp);
   return <div ref={ref}>{value + "" + indexProp + " " + index}</div>;
 }
 
