@@ -1,8 +1,12 @@
 import * as React from "react";
-import { PolymorphicComponentPropWithRef } from "../Polymorphic";
+import {
+  PolymorphicComponentPropWithRef,
+  PolymorphicRef,
+} from "../Polymorphic";
 import { TabMetadata } from "./TabList";
 import { useCompoundItem } from "../useCompound";
 import { useTabsContext } from ".";
+import { useComposeRefs } from "..";
 
 // Tab
 interface TabBaseProps {}
@@ -16,7 +20,7 @@ type TabComponent = <C extends React.ElementType = "div">(
 const Tab = React.forwardRef(
   <C extends React.ElementType = "div">(
     props: TabProps<C>,
-    ref?: PolymorphicRef<C>
+    forwardRef?: PolymorphicRef<C>
   ) => {
     const { children, as, ...rest } = props;
     const Comp = as || "div";
@@ -27,12 +31,12 @@ const Tab = React.forwardRef(
     }, []);
     const { index } = useCompoundItem<string, TabMetadata>(id, metadata);
     const { onSelect } = useTabsContext();
+    const composedRef = useComposeRefs(forwardRef, TabRef);
     return (
       <Comp
         {...rest}
-        ref={TabRef}
+        ref={composedRef}
         onClick={() => {
-          console.log("click", index);
           onSelect(index);
         }}
       >

@@ -1,7 +1,11 @@
 import * as React from "react";
-import { PolymorphicComponentPropWithRef } from "../Polymorphic";
+import {
+  PolymorphicComponentPropWithRef,
+  PolymorphicRef,
+} from "../Polymorphic";
 import { TabPanelMetadata, useTabsContext } from "./Tabs";
 import { useCompoundItem } from "../useCompound";
+import { useComposeRefs } from "..";
 
 // TabPanel
 interface TabPanelBaseProps {}
@@ -16,12 +20,13 @@ type TabPanelComponent = <C extends React.ElementType = "div">(
 const TabPanel = React.forwardRef(
   <C extends React.ElementType = "div">(
     props: TabPanelProps<C>,
-    ref?: PolymorphicRef<C>
+    forwardRef?: PolymorphicRef<C>
   ) => {
     const { children, as, ...rest } = props;
     const Comp = as || "div";
     const id = React.useId();
     const panelRef = React.useRef<HTMLElement>(null);
+    const composedRef = useComposeRefs(forwardRef, panelRef);
 
     const metadata = React.useMemo(() => {
       return {
@@ -40,7 +45,7 @@ const TabPanel = React.forwardRef(
     const hidden = index !== selectedValue;
 
     return (
-      <Comp {...rest} ref={panelRef}>
+      <Comp {...rest} ref={composedRef}>
         {!hidden && children}
       </Comp>
     );
