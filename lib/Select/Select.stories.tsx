@@ -16,6 +16,7 @@ type ItemValue = {
 
 function Select({ children }: { children: React.ReactNode }) {
   const { subitems, contextValue } = useCompoundParent<string, ItemValue>();
+  const [selectedOptions, setSelectedOptions] = React.useState([]);
 
   // const selectedLabel = subitems.values()
 
@@ -25,7 +26,7 @@ function Select({ children }: { children: React.ReactNode }) {
 
   return (
     <CompoundComponentContext.Provider value={contextValue}>
-      <button>{renderValue(selectedOptionsMetadata)}</button>
+      {/* <button>{renderValue(selectedOptionsMetadata)}</button> */}
       <input />
       <Portal>{children}</Portal>
     </CompoundComponentContext.Provider>
@@ -40,8 +41,6 @@ function Option(props: OptionProps) {
   const { value, children } = props;
   const id = React.useId();
   const optionRef = React.useRef<HTMLSpanElement>(null);
-  const [selected, setSelected] = React.useState(false);
-
   const computedLabel =
     typeof children === "string" ? children : optionRef.current?.innerText;
 
