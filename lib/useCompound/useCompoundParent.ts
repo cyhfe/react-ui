@@ -13,7 +13,9 @@ type CompoundComponentContextValue<Key, Subitem> = {
   totalSubitemCount: number;
 };
 const CompoundComponentContext =
-  React.createContext<CompoundComponentContextValue<any, any> | null>(null);
+  React.createContext<CompoundComponentContextValue<unknown, unknown> | null>(
+    null
+  );
 
 CompoundComponentContext.displayName = "CompoundComponentContext";
 
