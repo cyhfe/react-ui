@@ -30,17 +30,14 @@ const TabPanel = React.forwardRef(
       };
     }, [id]);
 
-    const { id: value } = useCompoundItem<string, TabPanelMetadata>(
-      id,
-      metadata
-    );
+    const { index } = useCompoundItem<string, TabPanelMetadata>(id, metadata);
 
     const context = useTabsContext();
     if (context === null) {
       throw new Error("No TabContext provided");
     }
     const { value: selectedValue } = context;
-    const hidden = value !== selectedValue;
+    const hidden = index !== selectedValue;
 
     return (
       <Comp {...rest} ref={panelRef}>

@@ -15,6 +15,21 @@ export interface TabMetadata {
   ref: React.RefObject<HTMLElement>;
 }
 
+// context
+interface TabListContextValue {}
+
+const TabListContext = React.createContext<TabListContextValue | null>(null);
+TabListContext.displayName = "TabListContext";
+
+function useTabListContext() {
+  const context = React.useContext(TabListContext);
+  if (context == null) {
+    throw new Error("No TabListContext provided");
+  }
+
+  return context;
+}
+
 type TabListCompoundComponentContextValue = CompoundComponentContextValue<
   string,
   TabMetadata
@@ -26,7 +41,7 @@ interface TabListProviderProps {
 function TabListProvider({ children, value }: TabListProviderProps) {
   return (
     <CompoundComponentContext.Provider value={value}>
-      {children}
+      <TabListContext.Provider value={{}}>{children}</TabListContext.Provider>
     </CompoundComponentContext.Provider>
   );
 }
@@ -72,4 +87,4 @@ const TabList = React.forwardRef(
   }
 ) as TabListComponent;
 
-export { TabList };
+export { TabList, useTabListContext };

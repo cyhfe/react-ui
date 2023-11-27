@@ -2,6 +2,7 @@ import * as React from "react";
 import { PolymorphicComponentPropWithRef } from "../Polymorphic";
 import { TabMetadata } from "./TabList";
 import { useCompoundItem } from "../useCompound";
+import { useTabsContext } from ".";
 
 // Tab
 interface TabBaseProps<C extends React.ElementType> {}
@@ -24,9 +25,17 @@ const Tab = React.forwardRef(
     const metadata = React.useMemo(() => {
       return { ref: TabRef };
     }, []);
-    useCompoundItem<string, TabMetadata>(id, metadata);
+    const { index } = useCompoundItem<string, TabMetadata>(id, metadata);
+    const { onSelect } = useTabsContext();
     return (
-      <Comp {...rest} ref={TabRef}>
+      <Comp
+        {...rest}
+        ref={TabRef}
+        onClick={() => {
+          console.log("click", index);
+          onSelect(index);
+        }}
+      >
         {children}
       </Comp>
     );

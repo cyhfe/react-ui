@@ -12,8 +12,8 @@ import {
 // TabsContext
 
 interface TabsContextValue {
-  value: string | undefined;
-  onSelect: (newValue: string) => void;
+  value: number | undefined;
+  onSelect: (index: number) => void;
 }
 
 const TabsContext = React.createContext<TabsContextValue | null>(null);
@@ -89,10 +89,10 @@ function TabsProvider(props: TabsProviderProps) {
 function useTabs() {
   const { subitems: tabPanels, contextValue: compoundComponentContextValue } =
     useCompoundParent<string, TabPanelMetadata>();
-  const [value, setValue] = React.useState<string>();
+  const [value, setValue] = React.useState<number>();
 
-  const onSelect = React.useCallback((newValue: string) => {
-    setValue(newValue);
+  const onSelect = React.useCallback((index: number) => {
+    setValue(index);
   }, []);
 
   React.useEffect(() => {
