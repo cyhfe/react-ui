@@ -1,17 +1,33 @@
 import * as React from "react";
-import type { PolymorphicComponentProp, PolymorphicRef } from "../Polymorphic";
-interface TabsProps {}
+import type {
+  PolymorphicComponentPropWithRef,
+  PolymorphicRef,
+} from "../Polymorphic";
 
-const Tabs = React.forwardRef(function Tabs<
-  C extends React.ElementType = "div"
->(props: PolymorphicComponentProp<C, TabsProps>, ref: PolymorphicRef<C>) {
-  const { as, children, ...rest } = props;
-  const Comp = as ?? "div";
-  return (
-    <Comp ref={ref} {...rest}>
-      {children}
-    </Comp>
-  );
-});
+interface TabsBaseProps<C extends React.ElementType> {}
+
+type TabsProps<C extends React.ElementType> = PolymorphicComponentPropWithRef<
+  C,
+  TabsBaseProps<C>
+>;
+
+type TabsComponent = <C extends React.ElementType = "div">(
+  props: TabsProps<C>
+) => React.ReactElement | null;
+
+const Tabs = React.forwardRef(
+  <C extends React.ElementType = "div">(
+    props: TabsProps<C>,
+    ref?: PolymorphicRef<C>
+  ) => {
+    const { children, as, ...rest } = props;
+    const Comp = as || "div";
+    return (
+      <Comp {...rest} ref={ref}>
+        {children}
+      </Comp>
+    );
+  }
+) as TabsComponent;
 
 export { Tabs };
