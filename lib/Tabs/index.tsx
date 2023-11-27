@@ -6,6 +6,7 @@ import type {
 import {
   CompoundComponentContext,
   CompoundComponentContextValue,
+  useCompoundParent,
 } from "../useCompound";
 
 // TabsContext
@@ -74,6 +75,16 @@ function TabsProvider(props: TabsProviderProps) {
   );
 }
 
+// useTabs
+function useTabs() {
+  const { subitems: tabPanels, contextValue: compoundComponentContextValue } =
+    useCompoundParent<string, TabPanelMetadata>();
+  return {
+    contextValue: {
+      ...compoundComponentContextValue,
+    },
+  };
+}
 // Tabs
 
 interface TabsBaseProps<C extends React.ElementType> {}
@@ -94,9 +105,10 @@ const Tabs = React.forwardRef(
   ) => {
     const { children, as, ...rest } = props;
     const Comp = as || "div";
+    const { contextValue } = useTabs();
     return (
       <Comp {...rest} ref={ref}>
-        {children}
+        <TabsProvider value={contextValue}>{children}</TabsProvider>
       </Comp>
     );
   }
