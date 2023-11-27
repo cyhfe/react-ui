@@ -17,17 +17,37 @@ import * as React from "react";
 //   );
 // });
 
-type TextProps<C extends React.ElementType = "span"> = {
-  as?: C;
-  children?: React.ReactNode;
-} & React.ComponentPropsWithoutRef<C>;
+type Rainbow =
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "blue"
+  | "indigo"
+  | "violet";
 
-function Text<C extends React.ElementType>(props: TextProps<C>) {
-  const { children, as, ...rest } = props;
-  const Comp = as || "div";
-  return <Comp {...rest}>{children}</Comp>;
-}
+type TextProps<C extends React.ElementType> = {
+  as?: C;
+  color?: Rainbow | "black";
+};
+
+type Props<C extends React.ElementType> = React.PropsWithChildren<
+  TextProps<C>
+> &
+  Omit<React.ComponentPropsWithoutRef<C>, keyof TextProps<C>>;
+
+export const Text = <C extends React.ElementType = "span">({
+  as,
+  children,
+}: Props<C>) => {
+  const Component = as || "span";
+  return <Component> {children} </Component>;
+};
 
 function Demo() {
-  return <Text as={"a"} href="asd" />;
+  return (
+    <Text as={"a"} href="asd">
+      123
+    </Text>
+  );
 }
