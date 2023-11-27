@@ -23,7 +23,6 @@ function useTabsContext() {
 
   return context;
 }
-export { TabsContext, useTabsContext };
 
 // TabsProvider
 type TabPanelMetadata = {
@@ -32,7 +31,7 @@ type TabPanelMetadata = {
 };
 
 type TabsProviderValue = CompoundComponentContextValue<
-  string | number,
+  string,
   TabPanelMetadata
 > &
   TabsContextValue;
@@ -43,11 +42,26 @@ interface TabsProviderProps {
 }
 
 function TabsProvider(props: TabsProviderProps) {
-  const { children } = props;
+  const { children, value: valueProp } = props;
+
+  const {
+    // compound
+    registerItem,
+    getItemIndex,
+    totalSubitemCount,
+  } = valueProp;
+
   const compoundComponentContextValue: CompoundComponentContextValue<
     string,
     TabPanelMetadata
-  > = React.useMemo(() => {}, []);
+  > = React.useMemo(() => {
+    return {
+      registerItem,
+      getItemIndex,
+      totalSubitemCount,
+    };
+  }, [getItemIndex, registerItem, totalSubitemCount]);
+
   const tabsContextValue = React.useMemo(() => {
     return {};
   }, []);
@@ -88,4 +102,4 @@ const Tabs = React.forwardRef(
   }
 ) as TabsComponent;
 
-export { Tabs, TabsProvider };
+export { Tabs, TabsProvider, TabsContext, useTabsContext };
