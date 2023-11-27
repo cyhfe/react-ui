@@ -4,10 +4,10 @@ import { TabPanelMetadata, useTabsContext } from "./Tabs";
 import { useCompoundItem } from "../useCompound";
 
 // TabPanel
-interface TabPanelBaseProps<C extends React.ElementType> {}
+interface TabPanelBaseProps {}
 
 type TabPanelProps<C extends React.ElementType> =
-  PolymorphicComponentPropWithRef<C, TabPanelBaseProps<C>>;
+  PolymorphicComponentPropWithRef<C, TabPanelBaseProps>;
 
 type TabPanelComponent = <C extends React.ElementType = "div">(
   props: TabPanelProps<C>

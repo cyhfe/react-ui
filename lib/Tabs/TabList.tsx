@@ -65,9 +65,9 @@ function useTabList() {
 
 // TabList
 
-interface TabListBaseProps<C extends React.ElementType> {}
+interface TabListBaseProps {}
 type TabListProps<C extends React.ElementType> =
-  PolymorphicComponentPropWithRef<C, TabListBaseProps<C>>;
+  PolymorphicComponentPropWithRef<C, TabListBaseProps>;
 type TabListComponent = <C extends React.ElementType = "div">(
   props: TabListProps<C>
 ) => React.ReactElement | null;

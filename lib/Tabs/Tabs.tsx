@@ -108,13 +108,13 @@ function useTabs() {
 }
 // Tabs
 
-interface TabsBaseProps<C extends React.ElementType> {
+interface TabsBaseProps {
   children: React.ReactNode;
 }
 
 type TabsProps<C extends React.ElementType> = PolymorphicComponentPropWithRef<
   C,
-  TabsBaseProps<C>
+  TabsBaseProps
 >;
 
 type TabsComponent = <C extends React.ElementType = "div">(

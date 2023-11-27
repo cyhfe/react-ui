@@ -5,10 +5,10 @@ import { useCompoundItem } from "../useCompound";
 import { useTabsContext } from ".";
 
 // Tab
-interface TabBaseProps<C extends React.ElementType> {}
+interface TabBaseProps {}
 type TabProps<C extends React.ElementType> = PolymorphicComponentPropWithRef<
   C,
-  TabBaseProps<C>
+  TabBaseProps
 >;
 type TabComponent = <C extends React.ElementType = "div">(
   props: TabProps<C>
