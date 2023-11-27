@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import { Demo } from "./Upload.tsx";
 import { ModalDemo } from "./Modal.tsx";
 import { TooltipDemo } from "./Tooltip.tsx";
+import { TabsDemo } from "./Tabs.tsx";
 
 import "./tailwind.css";
 
@@ -12,6 +13,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     {/* <App /> */}
     {/* <Demo /> */}
     {/* <ModalDemo /> */}
-    <TooltipDemo />
+    {/* <TooltipDemo /> */}
+    <TabsDemo />
   </React.StrictMode>
 );
