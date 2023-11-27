@@ -8,6 +8,7 @@ import {
   CompoundComponentContextValue,
   useCompoundParent,
 } from "../useCompound";
+import { useControlled } from "../useControlled";
 
 // TabsContext
 
@@ -86,18 +87,34 @@ function TabsProvider(props: TabsProviderProps) {
 }
 
 // useTabs
-function useTabs() {
+interface UseTabsParams {
+  value?: number;
+  defaultValue?: number;
+  onChange?: (value: number) => void;
+}
+
+function useTabs(params: UseTabsParams) {
   const { subitems: tabPanels, contextValue: compoundComponentContextValue } =
     useCompoundParent<string, TabPanelMetadata>();
-  const [value, setValue] = React.useState<number>();
 
-  const onSelect = React.useCallback((index: number) => {
-    setValue(index);
-  }, []);
+  const { value: valueProp, defaultValue, onChange } = params;
+  const [value, setValue] = useControlled<number>({
+    controlled: valueProp,
+    defaultProp: defaultValue,
+  });
+
+  const onSelect = React.useCallback(
+    (index: number) => {
+      setValue(index);
+      onChange?.(index);
+    },
+    [onChange, setValue]
+  );
 
   React.useEffect(() => {
     console.log(tabPanels);
   }, [tabPanels]);
+
   return {
     contextValue: {
       value,
@@ -110,6 +127,9 @@ function useTabs() {
 
 interface TabsBaseProps {
   children: React.ReactNode;
+  value?: number;
+  defaultValue?: number;
+  onChange?: (value: number) => void;
 }
 
 type TabsProps<C extends React.ElementType> = PolymorphicComponentPropWithRef<
@@ -126,9 +146,13 @@ const Tabs = React.forwardRef(
     props: TabsProps<C>,
     ref?: PolymorphicRef<C>
   ) => {
-    const { children, as, ...rest } = props;
+    const { children, as, value, defaultValue, onChange, ...rest } = props;
     const Comp = as || "div";
-    const { contextValue } = useTabs();
+    const { contextValue } = useTabs({
+      value,
+      defaultValue,
+      onChange,
+    });
     return (
       <Comp {...rest} ref={ref}>
         <TabsProvider value={contextValue}>{children}</TabsProvider>

@@ -5,7 +5,7 @@ export function useControlled<T>({
   defaultProp,
 }: {
   controlled: T | undefined;
-  defaultProp: T;
+  defaultProp: T | undefined;
 }) {
   const { current: isControlled } = React.useRef(controlled !== undefined);
   const [valueState, setValue] = React.useState(defaultProp);
@@ -19,5 +19,5 @@ export function useControlled<T>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return [value, setValueIfUncontrolled];
+  return [value, setValueIfUncontrolled] as const;
 }
