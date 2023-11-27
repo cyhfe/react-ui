@@ -30,3 +30,14 @@ export {
   useAccordion,
   useAccordionItem,
 } from "./Accordion";
+
+export {
+  Tab,
+  TabList,
+  useTabListContext,
+  TabPanel,
+  Tabs,
+  TabsProvider,
+  TabsContext,
+  useTabsContext,
+} from "./Tabs";
