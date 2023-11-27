@@ -18,8 +18,6 @@ function Select({ children }: { children: React.ReactNode }) {
   const { subitems, contextValue } = useCompoundParent<string, ItemValue>();
   const [selectedOptions, setSelectedOptions] = React.useState([]);
 
-  // const selectedLabel = subitems.values()
-
   React.useEffect(() => {
     console.log(Array.from(subitems.values()));
   }, [subitems]);
