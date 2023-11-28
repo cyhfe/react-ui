@@ -6,11 +6,11 @@ import {
   shift,
 } from "@floating-ui/react";
 import * as React from "react";
-import { Portal } from "../lib/Portal";
+import { Portal } from "../Portal";
 
 function Popup(props: any) {
   const { children, open, anchor, withTransition } = props;
-  const [exited, setExited] = React.useState(false);
+  const [exited, setExited] = React.useState(true);
 
   const { refs, floatingStyles, elements, update } = useFloating({
     elements: {
@@ -23,6 +23,11 @@ function Popup(props: any) {
   });
 
   const handleExited = React.useCallback(() => {
+    setExited(true);
+  }, []);
+
+  const handleEnter = React.useCallback(() => {
+    console.log("enter");
     setExited(false);
   }, []);
 
@@ -38,28 +43,17 @@ function Popup(props: any) {
   if (!shouldRender) return null;
 
   return (
-    <Portal style={{ position: "absolute", left: 0, top: 0 }}>
-      <div ref={refs.setFloating} style={floatingStyles}>
+    <Portal>
+      <div
+        ref={refs.setFloating}
+        style={{ position: "absolute", left: 0, top: 0, ...floatingStyles }}
+      >
         {typeof children === "function"
-          ? children({ open, handleExited })
+          ? children({ open, handleExited, handleEnter })
           : children}
       </div>
     </Portal>
   );
 }
 
-export function PopupDemo() {
-  const [isOpen, setIsOpen] = React.useState(false);
-
-  const triggerRef = React.useRef<HTMLButtonElement>(null);
-  return (
-    <div>
-      <button ref={triggerRef} onClick={() => setIsOpen((prev) => !prev)}>
-        trigger
-      </button>
-      <Popup open={isOpen} anchor={triggerRef.current}>
-        content
-      </Popup>
-    </div>
-  );
-}
+export { Popup };
