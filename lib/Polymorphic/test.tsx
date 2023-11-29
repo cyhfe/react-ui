@@ -1,5 +1,5 @@
 import * as React from "react";
-import { PolymorphicComponentPropWithRef, PolymorphicRef } from ".";
+import { PolymorphicComponentPropWithRef } from ".";
 
 interface BoxBaseProps {}
 
@@ -18,12 +18,12 @@ type BoxComponent = <RootComponentType extends React.ElementType>(
 const Box = React.forwardRef(
   <RootComponentType extends React.ElementType = "div">(
     props: BoxProps<RootComponentType>,
-    ref: PolymorphicRef<BoxTypeMap<RootComponentType>>
+    forwardRef: React.ForwardedRef<Element>
   ) => {
     const { as, children, ...rest } = props;
     const Comp = as ?? "div";
     return (
-      <Comp ref={ref} {...rest}>
+      <Comp ref={forwardRef} {...rest}>
         {children}
       </Comp>
     );
