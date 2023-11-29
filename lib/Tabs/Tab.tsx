@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
-  PolymorphicComponentPropWithRef,
+  PolymorphicComponent,
+  PolymorphicProps,
   PolymorphicRef,
 } from "../Polymorphic";
 import { TabMetadata } from "./TabList";
@@ -10,17 +11,16 @@ import { useComposeRefs } from "..";
 
 // Tab
 interface TabBaseProps {}
-type TabProps<C extends React.ElementType> = PolymorphicComponentPropWithRef<
-  C,
+type TabProps<RootElement extends React.ElementType> = PolymorphicProps<
+  RootElement,
   TabBaseProps
 >;
-type TabComponent = <C extends React.ElementType = "button">(
-  props: TabProps<C>
-) => React.ReactElement | null;
+type TabComponent = PolymorphicComponent<TabBaseProps, "button">;
+
 const Tab = React.forwardRef(
-  <C extends React.ElementType = "button">(
-    props: TabProps<C>,
-    forwardRef?: PolymorphicRef<C>
+  <RootElement extends React.ElementType = "button">(
+    props: TabProps<RootElement>,
+    forwardRef: PolymorphicRef<RootElement>
   ) => {
     const { children, as, ...rest } = props;
     const Comp = as || "button";
