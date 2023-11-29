@@ -5,6 +5,7 @@ import { Demo } from "./Upload.tsx";
 import { ModalDemo } from "./Modal.tsx";
 import { TooltipDemo } from "./Tooltip.tsx";
 import { TabsDemo } from "./Tabs.tsx";
+import { PopupDemo } from "./Popup.tsx";
 
 import "./tailwind.css";
 
@@ -14,6 +15,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     {/* <Demo /> */}
     {/* <ModalDemo /> */}
     {/* <TooltipDemo /> */}
-    <TabsDemo />
+    {/* <TabsDemo /> */}
+    <PopupDemo />
   </React.StrictMode>
 );

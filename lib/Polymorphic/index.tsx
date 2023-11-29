@@ -1,21 +1,28 @@
 // https://blog.logrocket.com/build-strongly-typed-polymorphic-components-react-typescript/
+// https://github.com/reach/reach-ui/blob/dev/packages/polymorphic/src/reach-polymorphic.ts
+// https://github.com/mui/material-ui/blob/master/packages/mui-base/src/utils/PolymorphicComponent.ts
 
-export type AsProp<C extends React.ElementType> = {
-  as?: C;
+import React from "react";
+
+export type AsProp<RootComponent extends React.ElementType> = {
+  as?: RootComponent;
 };
 
-export type PropsToOmit<C extends React.ElementType, P> = keyof (AsProp<C> & P);
+export type PolymorphicProps<
+  RootComponent extends React.ElementType,
+  Props extends Record<string, any>
+> = Props &
+  Omit<React.PropsWithChildren<AsProp<RootComponent>>, keyof Props> &
+  Omit<React.ComponentPropsWithRef<RootComponent>, keyof Props>;
 
-export type PolymorphicComponentProp<
-  C extends React.ElementType,
-  Props = object
-> = React.PropsWithChildren<Props & AsProp<C>> &
-  Omit<React.ComponentPropsWithoutRef<C>, PropsToOmit<C, Props>>;
+export type PolymorphicRef<RootComponent extends React.ElementType> =
+  React.ComponentPropsWithRef<RootComponent>["ref"];
 
-export type PolymorphicComponentPropWithRef<
-  C extends React.ElementType,
-  Props = object
-> = PolymorphicComponentProp<C, Props> & { ref?: PolymorphicRef<C> };
-
-export type PolymorphicRef<C extends React.ElementType> =
-  React.ComponentPropsWithRef<C>["ref"];
+export type PolymorphicComponent<
+  Props extends Record<string, any>,
+  DefaultRootComponent extends React.ElementType
+> = {
+  <RootComponent extends React.ElementType = DefaultRootComponent>(
+    props: PolymorphicProps<RootComponent, Props>
+  ): React.ReactElement | null;
+};
