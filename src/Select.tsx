@@ -5,6 +5,7 @@ import {
   useCompoundItem,
   useCompoundParent,
 } from "../lib/useCompound";
+import { Popup } from "../lib/Popup";
 
 import { useComposeRefs } from "../lib/useComposeRefs";
 export default { title: "Components/Select" };
@@ -20,7 +21,7 @@ function useSelect(params: UseSelectParams) {
 
   const defaultValue = multiple ? [] : undefined;
   const [selectedValue, setSelectedValue] = React.useState(defaultValue);
-
+  const [isOpen, setIsOpen] = React.useState(false);
   const handleSelectedChange = React.useCallback(
     (value) => {
       if (multiple) {
@@ -48,14 +49,28 @@ function useSelect(params: UseSelectParams) {
     console.log(options, selectedValue);
   }, [options, selectedValue]);
 
+  const toggleOpen = React.useCallback(() => {
+    console.log(1);
+    setIsOpen((prev) => !prev);
+  }, []);
+
   const selectContextValue = React.useMemo(() => {
     return {
       options,
       selectedValue,
       handleSelectedChange,
       getLabelByValue,
+      isOpen,
+      toggleOpen,
     };
-  }, [getLabelByValue, handleSelectedChange, options, selectedValue]);
+  }, [
+    getLabelByValue,
+    handleSelectedChange,
+    isOpen,
+    options,
+    selectedValue,
+    toggleOpen,
+  ]);
 
   return {
     contextValue,
@@ -109,7 +124,8 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(function Select(
   const { children, multiple = false, ...rest } = props;
   const value = useSelect({ multiple });
 
-  const { getLabelByValue, selectedValue } = value.selectContextValue;
+  const { getLabelByValue, selectedValue, isOpen, toggleOpen } =
+    value.selectContextValue;
 
   let label;
   if (multiple && Array.isArray(selectedValue)) {
@@ -118,10 +134,22 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(function Select(
     label = getLabelByValue(selectedValue);
   }
 
+  const triggerRef = React.useRef(null);
+
   return (
     <div ref={forwardRef} {...rest}>
-      <button>selected {label}</button>
-      <SelectProvider value={value}>{children}</SelectProvider>
+      <button onClick={toggleOpen} ref={triggerRef}>
+        selected {label}
+      </button>
+      <SelectProvider value={value}>
+        <Popup
+          open={isOpen}
+          anchor={triggerRef.current}
+          className="p-2 shadow max-w-sm border rounded"
+        >
+          {children}
+        </Popup>
+      </SelectProvider>
     </div>
   );
 });
