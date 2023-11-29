@@ -1,15 +1,13 @@
 // TabListProvider
 
 import * as React from "react";
-import {
-  PolymorphicComponentPropWithRef,
-  PolymorphicRef,
-} from "../Polymorphic";
+
 import {
   CompoundComponentContext,
   CompoundComponentContextValue,
   useCompoundParent,
 } from "../useCompound";
+import { Slot } from "..";
 
 export interface TabMetadata {
   ref: React.RefObject<HTMLElement>;
@@ -65,26 +63,21 @@ function useTabList() {
 
 // TabList
 
-interface TabListBaseProps {}
-type TabListProps<C extends React.ElementType> =
-  PolymorphicComponentPropWithRef<C, TabListBaseProps>;
-type TabListComponent = <C extends React.ElementType = "div">(
-  props: TabListProps<C>
-) => React.ReactElement | null;
-const TabList = React.forwardRef(
-  <C extends React.ElementType = "div">(
-    props: TabListProps<C>,
-    ref?: PolymorphicRef<C>
-  ) => {
-    const { children, as, ...rest } = props;
-    const Comp = as || "div";
+interface TabListBaseProps extends React.ComponentPropsWithoutRef<"div"> {
+  asChild?: boolean;
+}
+
+const TabList = React.forwardRef<HTMLDivElement, TabListBaseProps>(
+  (props, forwardRef) => {
+    const { children, asChild, ...rest } = props;
+    const Comp = asChild ? Slot : "div";
     const { contextValue } = useTabList();
     return (
-      <Comp {...rest} ref={ref}>
+      <Comp {...rest} ref={forwardRef}>
         <TabListProvider value={contextValue}>{children}</TabListProvider>
       </Comp>
     );
   }
-) as TabListComponent;
+);
 
 export { TabList, useTabListContext };

@@ -1,31 +1,21 @@
 import * as React from "react";
-import {
-  PolymorphicComponentPropWithRef,
-  PolymorphicRef,
-} from "../Polymorphic";
+
 import { TabMetadata } from "./TabList";
 import { useCompoundItem } from "../useCompound";
 import { useTabsContext } from ".";
-import { useComposeRefs } from "..";
+import { Slot, useComposeRefs } from "..";
 
 // Tab
-interface TabBaseProps {}
-type TabProps<C extends React.ElementType> = PolymorphicComponentPropWithRef<
-  C,
-  TabBaseProps
->;
-type TabComponent = <C extends React.ElementType = "button">(
-  props: TabProps<C>
-) => React.ReactElement | null;
-const Tab = React.forwardRef(
-  <C extends React.ElementType = "button">(
-    props: TabProps<C>,
-    forwardRef?: PolymorphicRef<C>
-  ) => {
-    const { children, as, ...rest } = props;
-    const Comp = as || "button";
+interface TabBaseProps extends React.ComponentPropsWithoutRef<"button"> {
+  asChild?: boolean;
+}
+
+const Tab = React.forwardRef<HTMLButtonElement, TabBaseProps>(
+  (props, forwardRef) => {
+    const { children, asChild, ...rest } = props;
+    const Comp = asChild ? Slot : "button";
     const id = React.useId();
-    const TabRef = React.useRef<HTMLElement>(null);
+    const TabRef = React.useRef<HTMLButtonElement>(null);
     const metadata = React.useMemo(() => {
       return { ref: TabRef };
     }, []);
@@ -46,6 +36,6 @@ const Tab = React.forwardRef(
       </Comp>
     );
   }
-) as TabComponent;
+);
 
 export { Tab };
