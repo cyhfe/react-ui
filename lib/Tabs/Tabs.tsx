@@ -1,14 +1,12 @@
 import * as React from "react";
-import type {
-  PolymorphicComponentPropWithRef,
-  PolymorphicRef,
-} from "../Polymorphic";
+
 import {
   CompoundComponentContext,
   CompoundComponentContextValue,
   useCompoundParent,
 } from "../useCompound";
 import { useControlled } from "../useControlled";
+import { Slot } from "..";
 
 // TabsContext
 
@@ -125,40 +123,33 @@ function useTabs(params: UseTabsParams) {
 }
 // Tabs
 
-interface TabsBaseProps {
-  children: React.ReactNode;
+interface TabsProps extends React.ComponentPropsWithoutRef<"div"> {
   value?: number;
   defaultValue?: number;
-  onChange?: (value: number) => void;
+  onValueChange?: (value: number) => void;
+  asChild?: boolean;
 }
 
-type TabsProps<C extends React.ElementType> = PolymorphicComponentPropWithRef<
-  C,
-  TabsBaseProps
->;
-
-type TabsComponent = <C extends React.ElementType = "div">(
-  props: TabsProps<C>
-) => React.ReactElement | null;
-
-const Tabs = React.forwardRef(
-  <C extends React.ElementType = "div">(
-    props: TabsProps<C>,
-    ref?: PolymorphicRef<C>
-  ) => {
-    const { children, as, value, defaultValue, onChange, ...rest } = props;
-    const Comp = as || "div";
-    const { contextValue } = useTabs({
-      value,
-      defaultValue,
-      onChange,
-    });
-    return (
-      <Comp {...rest} ref={ref}>
-        <TabsProvider value={contextValue}>{children}</TabsProvider>
-      </Comp>
-    );
-  }
-) as TabsComponent;
+const Tabs = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
+  const {
+    children,
+    value,
+    asChild = false,
+    defaultValue,
+    onValueChange: onChange,
+    ...rest
+  } = props;
+  const Comp = asChild ? Slot : "div";
+  const { contextValue } = useTabs({
+    value,
+    defaultValue,
+    onChange,
+  });
+  return (
+    <Comp {...rest} ref={ref}>
+      <TabsProvider value={contextValue}>{children}</TabsProvider>
+    </Comp>
+  );
+});
 
 export { Tabs, TabsProvider, TabsContext, useTabsContext };

@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.26.2",
+    "@floating-ui/react-dom": "^2.0.4",
     "uuid": "^9.0.1"
   },
   "license": "MIT"
