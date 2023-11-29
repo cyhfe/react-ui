@@ -25,21 +25,25 @@ interface PopupBaseProps {
   withTransition?: boolean;
   children?: ((props: ChildrenProps) => React.ReactNode) | React.ReactNode;
 }
-type PopupProps<C extends React.ElementType> = PolymorphicComponentPropWithRef<
-  C,
-  PopupBaseProps
->;
 
-type PopupComponent = <C extends React.ElementType = "div">(
-  props: PopupProps<C>
+interface PopupTypeMap<RootElementType extends React.ElementType> {
+  props: PopupBaseProps;
+  defaultRootComponent: RootElementType;
+}
+
+type PopupProps<RootComponentType extends React.ElementType> =
+  PolymorphicComponentPropWithRef<PopupTypeMap<RootComponentType>>;
+
+type PopupComponent = <RootComponentType extends React.ElementType = "div">(
+  props: PopupProps<RootComponentType>
 ) => React.ReactNode | null;
 
 const Popup = React.forwardRef(
-  <C extends React.ElementType = "div">(
-    props: PopupProps<C>,
-    forwardRef?: PolymorphicRef<C>
+  <RootComponentType extends React.ElementType = "div">(
+    props: PopupProps<RootComponentType>,
+    forwardRef?: PolymorphicRef<PopupTypeMap<RootComponentType>>
   ) => {
-    const { children, open, anchor, withTransition, ...rest } = props;
+    const { as, children, open, anchor, withTransition, ...rest } = props;
     const [exited, setExited] = React.useState(true);
 
     const { refs, floatingStyles, elements, update } = useFloating({
@@ -77,9 +81,11 @@ const Popup = React.forwardRef(
 
     if (!shouldRender) return null;
 
+    const Comp = as ?? "div";
+
     return (
       <Portal>
-        <div
+        <Comp
           ref={composedRef}
           style={{ position: "absolute", left: 0, top: 0, ...floatingStyles }}
           {...rest}
@@ -87,7 +93,7 @@ const Popup = React.forwardRef(
           {typeof children === "function"
             ? children({ open, handleExited, handleEnter })
             : children}
-        </div>
+        </Comp>
       </Portal>
     );
   }

@@ -1,24 +1,36 @@
 // https://blog.logrocket.com/build-strongly-typed-polymorphic-components-react-typescript/
 
-export type AsProp<C extends React.ElementType> = {
-  as?: C;
+import React from "react";
+
+export interface TypeMapBase {
+  props: object;
+  defaultRootComponent: React.ElementType;
+}
+
+export type AsProp<TypeMap extends TypeMapBase> = {
+  as?: TypeMap["defaultRootComponent"];
 };
 
-export type PropsToOmit<C extends React.ElementType, P> = keyof (AsProp<C> & P);
+export type DistributiveOmit<T, K extends keyof any> = T extends any
+  ? Omit<T, K>
+  : never;
 
-export type PolymorphicComponentProp<
-  C extends React.ElementType,
-  Props = object
-> = Omit<
-  React.PropsWithChildren<AsProp<C>> & React.ComponentPropsWithoutRef<C>,
-  keyof Props
-> &
-  Props;
+export type PolymorphicComponentProp<TypeMap extends TypeMapBase> =
+  TypeMap["props"] &
+    Omit<React.PropsWithChildren<AsProp<TypeMap>>, keyof TypeMap["props"]> &
+    Omit<
+      React.ComponentPropsWithoutRef<TypeMap["defaultRootComponent"]>,
+      keyof TypeMap["props"]
+    >;
 
-export type PolymorphicComponentPropWithRef<
-  C extends React.ElementType,
-  Props = object
-> = PolymorphicComponentProp<C, Props> & { ref?: PolymorphicRef<C> };
+export type PolymorphicComponentPropWithRef<TypeMap extends TypeMapBase> =
+  PolymorphicComponentProp<TypeMap> & {
+    ref?: PolymorphicRef<TypeMap>;
+  };
 
-export type PolymorphicRef<C extends React.ElementType> =
-  React.ComponentPropsWithRef<C>["ref"];
+export type PolymorphicRef<TypeMap extends TypeMapBase> =
+  React.ComponentPropsWithRef<TypeMap["defaultRootComponent"]>["ref"];
+
+export type PolymorphicComponent = <TypeMap extends TypeMapBase>(
+  props: TypeMap["props"]
+) => React.ReactNode | null;
