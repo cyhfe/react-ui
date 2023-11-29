@@ -58,7 +58,7 @@ export function Controlled() {
       defaultValue={0}
       className="max-w-sm"
       value={value}
-      onChange={setValue}
+      onValueChange={setValue}
     >
       <TabList className="text-sm font-medium text-center text-gray-500 rounded-lg shadow flex">
         <Tab className="data-[state=active]:text-gray-900 data-[state=active]:bg-gray-100 data-[state=active]:border-r data-[state=active]:border-gray-200 w-full py-1 px-2 bg-white border-r border-gray-200  hover:text-gray-700 hover:bg-gray-50">

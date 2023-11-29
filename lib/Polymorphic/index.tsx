@@ -1,36 +1,28 @@
 // https://blog.logrocket.com/build-strongly-typed-polymorphic-components-react-typescript/
+// https://github.com/reach/reach-ui/blob/dev/packages/polymorphic/src/reach-polymorphic.ts
+// https://github.com/mui/material-ui/blob/master/packages/mui-base/src/utils/PolymorphicComponent.ts
 
 import React from "react";
 
-export interface TypeMapBase {
-  props: object;
-  defaultRootComponent: React.ElementType;
-}
-
-export type AsProp<TypeMap extends TypeMapBase> = {
-  as?: TypeMap["defaultRootComponent"];
+export type AsProp<RootComponent extends React.ElementType> = {
+  as?: RootComponent;
 };
 
-export type DistributiveOmit<T, K extends keyof any> = T extends any
-  ? Omit<T, K>
-  : never;
+export type PolymorphicProps<
+  RootComponent extends React.ElementType,
+  Props extends Record<string, any>
+> = Props &
+  Omit<React.PropsWithChildren<AsProp<RootComponent>>, keyof Props> &
+  Omit<React.ComponentPropsWithRef<RootComponent>, keyof Props>;
 
-export type PolymorphicComponentProp<TypeMap extends TypeMapBase> =
-  TypeMap["props"] &
-    Omit<React.PropsWithChildren<AsProp<TypeMap>>, keyof TypeMap["props"]> &
-    Omit<
-      React.ComponentPropsWithoutRef<TypeMap["defaultRootComponent"]>,
-      keyof TypeMap["props"]
-    >;
+export type PolymorphicRef<RootComponent extends React.ElementType> =
+  React.ComponentPropsWithRef<RootComponent>["ref"];
 
-export type PolymorphicComponentPropWithRef<TypeMap extends TypeMapBase> =
-  PolymorphicComponentProp<TypeMap> & {
-    ref?: PolymorphicRef<TypeMap>;
-  };
-
-export type PolymorphicRef<TypeMap extends TypeMapBase> =
-  React.ComponentPropsWithRef<TypeMap["defaultRootComponent"]>["ref"];
-
-export type PolymorphicComponent = <TypeMap extends TypeMapBase>(
-  props: TypeMap["props"]
-) => React.ReactNode | null;
+export type PolymorphicComponent<
+  Props extends Record<string, any>,
+  DefaultRootComponent extends React.ElementType
+> = {
+  <RootComponent extends React.ElementType = DefaultRootComponent>(
+    props: PolymorphicProps<RootComponent, Props>
+  ): React.ReactElement | null;
+};
