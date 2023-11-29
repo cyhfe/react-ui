@@ -32,19 +32,17 @@ function mergeProps(slotProps: AnyProps, childProps: AnyProps) {
 
     const isHandler = /^on[A-Z]/.test(propName);
     if (isHandler) {
-      // if the handler exists on both, we compose them
+      // compose handler
       if (slotPropValue && childPropValue) {
         overrideProps[propName] = (...args: unknown[]) => {
           childPropValue(...args);
           slotPropValue(...args);
         };
-      }
-      // but if it exists only on the slot, we use only this one
-      else if (slotPropValue) {
+      } else if (slotPropValue) {
         overrideProps[propName] = slotPropValue;
       }
     }
-    // if it's `style`, we merge them
+    // compose style
     else if (propName === "style") {
       overrideProps[propName] = { ...slotPropValue, ...childPropValue };
     } else if (propName === "className") {
