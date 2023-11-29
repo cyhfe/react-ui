@@ -10,12 +10,20 @@ export function PopupDemo() {
 
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   return (
-    <div>
-      <button ref={triggerRef} onClick={() => setIsOpen((prev) => !prev)}>
+    <div className="flex justify-center items-center">
+      <button
+        ref={triggerRef}
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="border border-black rounded px-2 py-1"
+      >
         trigger
       </button>
-      <Popup open={isOpen} anchor={triggerRef.current}>
-        content
+      <Popup
+        open={isOpen}
+        anchor={triggerRef.current}
+        className="p-2 shadow max-w-sm border rounded"
+      >
+        Ut aliquip esse ipsum nisi.
       </Popup>
     </div>
   );
@@ -32,8 +40,12 @@ export function Animation() {
   };
 
   return (
-    <div>
-      <button ref={triggerRef} onClick={() => setIsOpen((prev) => !prev)}>
+    <div className="flex justify-center items-center">
+      <button
+        ref={triggerRef}
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="border border-black rounded px-2 py-1"
+      >
         trigger
       </button>
       <Popup open={isOpen} anchor={triggerRef.current} withTransition>
@@ -41,6 +53,7 @@ export function Animation() {
           <AnimatePresence>
             {open && (
               <motion.div
+                className="p-2 shadow max-w-sm border rounded"
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
@@ -56,7 +69,8 @@ export function Animation() {
                   }
                 }}
               >
-                content
+                Ut Lorem occaecat amet pariatur qui nostrud est minim cupidatat
+                nostrud in ullamco.
               </motion.div>
             )}
           </AnimatePresence>

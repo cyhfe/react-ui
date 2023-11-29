@@ -7,11 +7,7 @@ import {
 } from "@floating-ui/react";
 import * as React from "react";
 import { Portal } from "../Portal";
-import {
-  PolymorphicComponentPropWithRef,
-  PolymorphicRef,
-} from "../Polymorphic";
-import { useComposeRefs } from "..";
+import { Slot, useComposeRefs } from "..";
 
 interface ChildrenProps {
   open: boolean;
@@ -19,31 +15,18 @@ interface ChildrenProps {
   handleEnter: () => void;
 }
 
-interface PopupBaseProps {
+interface PopupProps
+  extends Omit<React.ComponentPropsWithoutRef<"div">, "children"> {
   open: boolean;
   anchor: HTMLElement | null | undefined;
   withTransition?: boolean;
   children?: ((props: ChildrenProps) => React.ReactNode) | React.ReactNode;
+  asChild?: boolean;
 }
 
-interface PopupTypeMap<RootElementType extends React.ElementType> {
-  props: PopupBaseProps;
-  defaultRootComponent: RootElementType;
-}
-
-type PopupProps<RootComponentType extends React.ElementType> =
-  PolymorphicComponentPropWithRef<PopupTypeMap<RootComponentType>>;
-
-type PopupComponent = <RootComponentType extends React.ElementType = "div">(
-  props: PopupProps<RootComponentType>
-) => React.ReactNode | null;
-
-const Popup = React.forwardRef(
-  <RootComponentType extends React.ElementType = "div">(
-    props: PopupProps<RootComponentType>,
-    forwardRef?: PolymorphicRef<PopupTypeMap<RootComponentType>>
-  ) => {
-    const { as, children, open, anchor, withTransition, ...rest } = props;
+const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
+  (props, forwardRef) => {
+    const { asChild, children, open, anchor, withTransition, ...rest } = props;
     const [exited, setExited] = React.useState(true);
 
     const { refs, floatingStyles, elements, update } = useFloating({
@@ -52,11 +35,14 @@ const Popup = React.forwardRef(
       },
       open: open,
       placement: "bottom",
-      middleware: [offset(), flip(), shift()],
+      middleware: [offset(8), flip(), shift()],
       whileElementsMounted: autoUpdate,
     });
 
-    const composedRef = useComposeRefs(refs.setFloating, forwardRef);
+    const composedRef = useComposeRefs<HTMLDivElement>(
+      forwardRef,
+      refs.setFloating
+    );
 
     const handleExited = React.useCallback(() => {
       setExited(true);
@@ -81,7 +67,7 @@ const Popup = React.forwardRef(
 
     if (!shouldRender) return null;
 
-    const Comp = as ?? "div";
+    const Comp = asChild ? Slot : "div";
 
     return (
       <Portal>
@@ -97,6 +83,6 @@ const Popup = React.forwardRef(
       </Portal>
     );
   }
-) as PopupComponent;
+);
 
 export { Popup };
