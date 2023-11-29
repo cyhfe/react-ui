@@ -5,7 +5,7 @@ export default {
   title: "Components/Popup",
 };
 
-export function PopupDemo() {
+export function Base() {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const triggerRef = React.useRef<HTMLButtonElement>(null);
@@ -19,6 +19,31 @@ export function PopupDemo() {
         trigger
       </button>
       <Popup
+        open={isOpen}
+        anchor={triggerRef.current}
+        className="p-2 shadow max-w-sm border rounded"
+      >
+        Ut aliquip esse ipsum nisi.
+      </Popup>
+    </div>
+  );
+}
+
+export function KeepMounted() {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  return (
+    <div className="flex justify-center items-center">
+      <button
+        ref={triggerRef}
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="border border-black rounded px-2 py-1"
+      >
+        trigger
+      </button>
+      <Popup
+        keepMounted
         open={isOpen}
         anchor={triggerRef.current}
         className="p-2 shadow max-w-sm border rounded"
