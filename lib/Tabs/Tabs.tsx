@@ -123,11 +123,10 @@ function useTabs(params: UseTabsParams) {
 }
 // Tabs
 
-interface TabsProps {
-  children: React.ReactNode;
+interface TabsProps extends React.ComponentPropsWithoutRef<"div"> {
   value?: number;
   defaultValue?: number;
-  onChange?: (value: number) => void;
+  onValueChange?: (value: number) => void;
   asChild?: boolean;
 }
 
@@ -137,7 +136,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
     value,
     asChild = false,
     defaultValue,
-    onChange,
+    onValueChange: onChange,
     ...rest
   } = props;
   const Comp = asChild ? Slot : "div";
