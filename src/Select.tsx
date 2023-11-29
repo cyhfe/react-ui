@@ -9,14 +9,32 @@ import {
 import { useComposeRefs } from "../lib/useComposeRefs";
 export default { title: "Components/Select" };
 
-// useSelect
-function useSelect() {
-  const { subitems: options, contextValue } = useCompoundParent();
-  const [selectedValue, setSelectedValue] = React.useState("");
+interface UseSelectParams {
+  multiple: boolean;
+}
 
-  const handleSelectedChange = React.useCallback((value) => {
-    setSelectedValue(value);
-  }, []);
+// useSelect
+function useSelect(params: UseSelectParams) {
+  const { multiple } = params;
+  const { subitems: options, contextValue } = useCompoundParent();
+
+  const defaultValue = multiple ? [] : undefined;
+  const [selectedValue, setSelectedValue] = React.useState(defaultValue);
+
+  const handleSelectedChange = React.useCallback(
+    (value) => {
+      if (multiple) {
+        if (selectedValue.includes(value)) {
+          setSelectedValue((prev) => prev.filter((v) => v !== value));
+        } else {
+          setSelectedValue((prev) => [...prev, value]);
+        }
+      } else {
+        setSelectedValue(value);
+      }
+    },
+    [multiple, selectedValue]
+  );
 
   const getLabelByValue = React.useCallback(
     (value) => {
@@ -81,17 +99,24 @@ function SelectProvider(props: SelectProviderProps) {
   );
 }
 
-interface SelectProps extends React.ComponentPropsWithoutRef<"div"> {}
+interface SelectProps extends React.ComponentPropsWithoutRef<"div"> {
+  multiple?: boolean;
+}
 const Select = React.forwardRef<HTMLDivElement, SelectProps>(function Select(
   props: SelectProps,
   forwardRef
 ) {
-  const { children, ...rest } = props;
-  const value = useSelect();
+  const { children, multiple = false, ...rest } = props;
+  const value = useSelect({ multiple });
 
   const { getLabelByValue, selectedValue } = value.selectContextValue;
 
-  const label = getLabelByValue(selectedValue);
+  let label;
+  if (multiple && Array.isArray(selectedValue)) {
+    label = selectedValue.map((v) => getLabelByValue(v)).join(",");
+  } else {
+    label = getLabelByValue(selectedValue);
+  }
 
   return (
     <div ref={forwardRef} {...rest}>
@@ -110,7 +135,7 @@ const Option = React.forwardRef<HTMLSpanElement, OptionProps>(function Option(
   forwardRef
 ) {
   const { children, value, ...rest } = props;
-  const id = React.useId();
+
   const ref = React.useRef<HTMLSpanElement>(null);
   const composedRef = useComposeRefs(ref, forwardRef);
   const metadata = React.useMemo(() => {
@@ -136,7 +161,7 @@ const Option = React.forwardRef<HTMLSpanElement, OptionProps>(function Option(
 
 export function SelectDemo() {
   return (
-    <Select>
+    <Select multiple>
       <Option value="1">one</Option>
       <Option value="2">two</Option>
       <Option value="3">three</Option>
