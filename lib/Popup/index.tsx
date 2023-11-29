@@ -22,11 +22,20 @@ interface PopupProps
   withTransition?: boolean;
   children?: ((props: ChildrenProps) => React.ReactNode) | React.ReactNode;
   asChild?: boolean;
+  keepMounted?: boolean;
 }
 
 const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
   (props, forwardRef) => {
-    const { asChild, children, open, anchor, withTransition, ...rest } = props;
+    const {
+      asChild,
+      children,
+      open,
+      anchor,
+      withTransition,
+      keepMounted = false,
+      ...rest
+    } = props;
     const [exited, setExited] = React.useState(true);
 
     const { refs, floatingStyles, elements, update } = useFloating({
@@ -63,17 +72,24 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
       }
     }, [open, elements, update]);
 
-    const shouldRender = open || (withTransition && !exited);
+    const shouldRender = open || keepMounted || (withTransition && !exited);
 
     if (!shouldRender) return null;
 
     const Comp = asChild ? Slot : "div";
+    const notDisplay = !open && keepMounted ? { display: "none" } : undefined;
 
     return (
       <Portal>
         <Comp
           ref={composedRef}
-          style={{ position: "absolute", left: 0, top: 0, ...floatingStyles }}
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            ...floatingStyles,
+            ...notDisplay,
+          }}
           {...rest}
         >
           {typeof children === "function"
