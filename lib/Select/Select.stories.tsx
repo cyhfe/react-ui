@@ -1,4 +1,10 @@
-import { SelectOption, SelectRoot, SelectTrigger } from ".";
+import {
+  SelectLabel,
+  SelectOption,
+  SelectPlaceholder,
+  SelectRoot,
+  SelectTrigger,
+} from ".";
 import { PopupContent, PopupRoot, PopupTrigger } from "../Popup";
 
 export default {
@@ -27,7 +33,10 @@ export function Single() {
     >
       <PopupRoot>
         <PopupTrigger asChild>
-          <SelectTrigger className="w-80 min-h-[30px] px-3 py-2 text-left border rounded shadow" />
+          <SelectTrigger className="w-80 min-h-[30px] px-3 py-2 text-left border rounded shadow">
+            <SelectPlaceholder className="text-slate-400" />
+            <SelectLabel />
+          </SelectTrigger>
         </PopupTrigger>
         <PopupContent
           keepMounted

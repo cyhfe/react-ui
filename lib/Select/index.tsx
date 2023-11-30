@@ -110,24 +110,13 @@ const SelectRoot = React.forwardRef<HTMLDivElement, SelectRootProps>(
 );
 
 /**
- * SelectTrigger
+ * SelectLabel
  */
 
-interface SelectTriggerProps extends React.ComponentPropsWithoutRef<"button"> {}
-const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
-  function SelectTrigger(props: SelectTriggerProps, forwardRef) {
-    const { children, ...rest } = props;
-    const { selectedValue, getLabelByValue, placeholder } =
-      useSelectRoot("SelectTriggerProps");
-
-    function showPlaceholder() {
-      if (Array.isArray(selectedValue)) {
-        return selectedValue.length === 0;
-      } else {
-        return !selectedValue;
-      }
-    }
-
+interface SelectLabelProps extends React.ComponentPropsWithoutRef<"div"> {}
+const SelectLabel = React.forwardRef<HTMLDivElement, SelectLabelProps>(
+  function SelectLabel(props: SelectLabelProps, forwardRef) {
+    const { selectedValue, getLabelByValue } = useSelectRoot("SelectLabel");
     function renderLabel() {
       let label: string;
       if (Array.isArray(selectedValue)) {
@@ -137,11 +126,53 @@ const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
       }
       return label;
     }
+    const { children, ...rest } = props;
+    return (
+      <div ref={forwardRef} {...rest}>
+        {children ?? renderLabel()}
+      </div>
+    );
+  }
+);
+
+/**
+ * SelectPlaceholder
+ */
+
+interface SelectPlaceholderProps
+  extends React.ComponentPropsWithoutRef<"div"> {}
+const SelectPlaceholder = React.forwardRef<
+  HTMLDivElement,
+  SelectPlaceholderProps
+>(function SelectPlaceholder(props: SelectPlaceholderProps, forwardRef) {
+  const { children, ...rest } = props;
+  const { selectedValue, placeholder } = useSelectRoot("SelectTriggerProps");
+
+  function showPlaceholder() {
+    if (Array.isArray(selectedValue)) {
+      return selectedValue.length === 0;
+    } else {
+      return !selectedValue;
+    }
+  }
+  return (
+    <div ref={forwardRef} {...rest}>
+      {children ?? (showPlaceholder() && placeholder)}
+    </div>
+  );
+});
+
+/**
+ * SelectTrigger
+ */
+
+interface SelectTriggerProps extends React.ComponentPropsWithoutRef<"button"> {}
+const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
+  function SelectTrigger(props: SelectTriggerProps, forwardRef) {
+    const { children, ...rest } = props;
 
     return (
       <button ref={forwardRef} {...rest}>
-        {showPlaceholder() && placeholder}
-        {renderLabel()}
         {children}
       </button>
     );
@@ -184,4 +215,10 @@ const SelectOption = React.forwardRef<HTMLButtonElement, SelectOptionProps>(
   }
 );
 
-export { SelectRoot, SelectOption, SelectTrigger };
+export {
+  SelectRoot,
+  SelectOption,
+  SelectTrigger,
+  SelectLabel,
+  SelectPlaceholder,
+};
