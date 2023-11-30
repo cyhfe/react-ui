@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export function useControlled<T>({
+export function useControlled<T = unknown>({
   controlled,
   defaultProp,
 }: {
@@ -19,5 +19,8 @@ export function useControlled<T>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return [value, setValueIfUncontrolled] as const;
+  return [value, setValueIfUncontrolled] as [
+    T,
+    (newValue: T | ((prevValue: T) => T)) => void
+  ];
 }
