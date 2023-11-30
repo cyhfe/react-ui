@@ -11,39 +11,38 @@ import { Slot, createContext, useComposeRefs } from "..";
 import { useControlled } from "../useControlled";
 
 interface ChildrenProps {
-  open: boolean;
+  isOpen: boolean;
   handleExited: () => void;
   handleEnter: () => void;
 }
 
 interface PopupProps
   extends Omit<React.ComponentPropsWithoutRef<"div">, "children"> {
-  open: boolean;
-  anchor: HTMLElement | null | undefined;
   withTransition?: boolean;
   children?: ((props: ChildrenProps) => React.ReactNode) | React.ReactNode;
   asChild?: boolean;
   keepMounted?: boolean;
 }
 
-const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
+const PopupContent = React.forwardRef<HTMLDivElement, PopupProps>(
   (props, forwardRef) => {
     const {
       asChild,
       children,
-      open,
-      anchor,
       withTransition,
       keepMounted = false,
       ...rest
     } = props;
     const [exited, setExited] = React.useState(true);
+    const { isOpen, triggerRef } = usePopup("PopupContent");
+
+    const anchor = triggerRef.current;
 
     const { refs, floatingStyles, elements, update } = useFloating({
       elements: {
         reference: anchor,
       },
-      open: open,
+      open: isOpen,
       placement: "bottom",
       middleware: [offset(8), flip(), shift()],
       whileElementsMounted: autoUpdate,
@@ -63,7 +62,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
     }, []);
 
     React.useLayoutEffect(() => {
-      if (open && elements.reference && elements.floating) {
+      if (isOpen && elements.reference && elements.floating) {
         const cleanup = autoUpdate(
           elements.reference,
           elements.floating,
@@ -71,14 +70,13 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
         );
         return cleanup;
       }
-    }, [open, elements, update]);
+    }, [elements, update, isOpen]);
 
-    const shouldRender = open || keepMounted || (withTransition && !exited);
-
+    const shouldRender = isOpen || (withTransition && !exited) || keepMounted;
     if (!shouldRender) return null;
 
     const Comp = asChild ? Slot : "div";
-    const notDisplay = !open && keepMounted ? { display: "none" } : undefined;
+    const notDisplay = !isOpen && keepMounted ? { display: "none" } : undefined;
 
     return (
       <Portal>
@@ -94,7 +92,7 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
           {...rest}
         >
           {typeof children === "function"
-            ? children({ open, handleExited, handleEnter })
+            ? children({ isOpen, handleExited, handleEnter })
             : children}
         </Comp>
       </Portal>
@@ -121,7 +119,7 @@ const PopupRoot = React.forwardRef<HTMLDivElement, PopupRootProps>(
       children,
       isOpen: isOpenProp,
       defaultIsOpen = false,
-      onIsOpenChange,
+      onIsOpenChange = () => {},
       ...rest
     } = props;
     const triggerRef = React.useRef<HTMLElement | null>(null);
@@ -153,17 +151,21 @@ const PopupRoot = React.forwardRef<HTMLDivElement, PopupRootProps>(
   }
 );
 
-interface PopupTriggerProps extends React.ComponentPropsWithoutRef<"div"> {}
-const PopupTrigger = React.forwardRef<HTMLDivElement, PopupTriggerProps>(
+interface PopupTriggerProps extends React.ComponentPropsWithoutRef<"button"> {
+  asChild?: boolean;
+}
+const PopupTrigger = React.forwardRef<Element, PopupTriggerProps>(
   function PopupTrigger(props: PopupTriggerProps, forwardRef) {
-    const { children, ...rest } = props;
-
+    const { children, asChild = false, ...rest } = props;
+    const { triggerRef, onIsOpenChange, isOpen } = usePopup("PopupTrigger");
+    const composedRef = useComposeRefs(triggerRef, forwardRef);
+    const Comp = asChild ? Slot : "button";
     return (
-      <div ref={composedRef} {...rest}>
+      <Comp ref={composedRef} {...rest} onClick={() => onIsOpenChange(!isOpen)}>
         {children}
-      </div>
+      </Comp>
     );
   }
 );
 
-export { Popup };
+export { PopupContent, PopupTrigger, PopupRoot };
