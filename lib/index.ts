@@ -41,3 +41,14 @@ export {
   TabsContext,
   useTabsContext,
 } from "./Tabs";
+
+export { PopupContent, PopupTrigger, PopupRoot } from "./Popup";
+
+export {
+  SelectRoot,
+  SelectPopup,
+  SelectOption,
+  SelectTrigger,
+  SelectLabel,
+  SelectPlaceholder,
+} from "./Select";
