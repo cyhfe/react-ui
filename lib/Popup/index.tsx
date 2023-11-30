@@ -81,7 +81,6 @@ const PopupContent = React.forwardRef<HTMLDivElement, PopupProps>(
       const handleClick = (e: MouseEvent) => {
         if (!isOpen || !closeOnClickoutside) return;
         if (!contentRef.current?.contains(e.target as Node)) {
-          console.log("close");
           handleClose();
         }
       };

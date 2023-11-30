@@ -7,6 +7,7 @@ import {
 } from "../useCompound";
 import { useComposeRefs } from "../useComposeRefs";
 import { createContext } from "..";
+import { PopupContent, PopupRoot, PopupTrigger } from "../Popup";
 
 /**
  * SelectRoot
@@ -43,6 +44,7 @@ const SelectRoot = React.forwardRef<HTMLDivElement, SelectRootProps>(
       placeholder,
       ...rest
     } = props;
+    const [open, setOpen] = React.useState(false);
     const defaultValue = defaultSelected ?? multiple ? [] : "";
     const [selectedValue, setSelectedValue] = React.useState<string | string[]>(
       defaultValue
@@ -51,10 +53,6 @@ const SelectRoot = React.forwardRef<HTMLDivElement, SelectRootProps>(
       string,
       Metadata
     >();
-
-    React.useEffect(() => {
-      console.log(options, selectedValue);
-    }, [options, selectedValue]);
 
     const handleSelectedValueChange = React.useCallback(
       (value: string) => {
@@ -79,6 +77,7 @@ const SelectRoot = React.forwardRef<HTMLDivElement, SelectRootProps>(
         } else {
           setSelectedValue(value);
           onSelectedChange?.(value);
+          setOpen(false);
         }
       },
       [multiple, onSelectedChange, selectedValue]
@@ -100,9 +99,11 @@ const SelectRoot = React.forwardRef<HTMLDivElement, SelectRootProps>(
           getLabelByValue={getLabelByValue}
           placeholder={placeholder}
         >
-          <div ref={forwardRef} {...rest}>
-            {children}
-          </div>
+          <PopupRoot isOpen={open} onIsOpenChange={setOpen} closeOnClickoutside>
+            <div ref={forwardRef} {...rest}>
+              {children}
+            </div>
+          </PopupRoot>
         </SelectRootProvider>
       </CompoundComponentContext.Provider>
     );
@@ -172,12 +173,20 @@ const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
     const { children, ...rest } = props;
 
     return (
-      <button ref={forwardRef} {...rest}>
-        {children}
-      </button>
+      <PopupTrigger asChild>
+        <button ref={forwardRef} {...rest}>
+          {children}
+        </button>
+      </PopupTrigger>
     );
   }
 );
+
+/**
+ * SelectPopup
+ */
+
+const SelectPopup = PopupContent;
 
 /**
  * SelectOption
@@ -217,6 +226,7 @@ const SelectOption = React.forwardRef<HTMLButtonElement, SelectOptionProps>(
 
 export {
   SelectRoot,
+  SelectPopup,
   SelectOption,
   SelectTrigger,
   SelectLabel,
