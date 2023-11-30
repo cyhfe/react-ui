@@ -79,8 +79,9 @@ const PopupContent = React.forwardRef<HTMLDivElement, PopupProps>(
 
     React.useEffect(() => {
       const handleClick = (e: MouseEvent) => {
-        if (!isOpen && !closeOnClickoutside) return;
+        if (!isOpen || !closeOnClickoutside) return;
         if (!contentRef.current?.contains(e.target as Node)) {
+          console.log("close");
           handleClose();
         }
       };
@@ -162,13 +163,7 @@ const PopupRoot = React.forwardRef<HTMLDivElement, PopupRootProps>(
     }, [isOpen, onChange, setIsOpen]);
 
     return (
-      <div
-        ref={forwardRef}
-        {...rest}
-        onClick={(e) => {
-          closeOnClickoutside && e.stopPropagation();
-        }}
-      >
+      <div ref={forwardRef} {...rest}>
         <PopupProvider
           triggerRef={triggerRef}
           isOpen={isOpen}
@@ -189,15 +184,17 @@ interface PopupTriggerProps extends React.ComponentPropsWithoutRef<"button"> {
 const PopupTrigger = React.forwardRef<Element, PopupTriggerProps>(
   function PopupTrigger(props: PopupTriggerProps, forwardRef) {
     const { children, asChild = false, ...rest } = props;
-    const { triggerRef, handleToggle } = usePopup("PopupTrigger");
+    const { triggerRef, handleToggle, closeOnClickoutside } =
+      usePopup("PopupTrigger");
     const composedRef = useComposeRefs(triggerRef, forwardRef);
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
         ref={composedRef}
         {...rest}
-        onClick={() => {
+        onClick={(e) => {
           handleToggle();
+          closeOnClickoutside && e.stopPropagation();
         }}
       >
         {children}
