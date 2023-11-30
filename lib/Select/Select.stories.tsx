@@ -31,7 +31,7 @@ export function Single() {
       placeholder="choose color"
       multiple
     >
-      <PopupRoot>
+      <PopupRoot closeOnClickoutside>
         <PopupTrigger asChild>
           <SelectTrigger className="w-80 min-h-[30px] px-3 py-2 text-left border rounded shadow">
             <SelectPlaceholder className="text-slate-500" />

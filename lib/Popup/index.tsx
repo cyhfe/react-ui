@@ -9,6 +9,7 @@ import * as React from "react";
 import { Portal } from "../Portal";
 import { Slot, createContext, useComposeRefs } from "..";
 import { useControlled } from "../useControlled";
+import { useStableCallback } from "../useStableCallback";
 
 interface ChildrenProps {
   isOpen: boolean;
@@ -34,7 +35,8 @@ const PopupContent = React.forwardRef<HTMLDivElement, PopupProps>(
       ...rest
     } = props;
     const [exited, setExited] = React.useState(true);
-    const { isOpen, triggerRef } = usePopup("PopupContent");
+    const { isOpen, triggerRef, handleClose, closeOnClickoutside } =
+      usePopup("PopupContent");
 
     const anchor = triggerRef.current;
 
@@ -48,9 +50,12 @@ const PopupContent = React.forwardRef<HTMLDivElement, PopupProps>(
       whileElementsMounted: autoUpdate,
     });
 
+    const contentRef = React.useRef<HTMLDivElement>(null);
+
     const composedRef = useComposeRefs<HTMLDivElement>(
       forwardRef,
-      refs.setFloating
+      refs.setFloating,
+      contentRef
     );
 
     const handleExited = React.useCallback(() => {
@@ -71,6 +76,17 @@ const PopupContent = React.forwardRef<HTMLDivElement, PopupProps>(
         return cleanup;
       }
     }, [elements, update, isOpen]);
+
+    React.useEffect(() => {
+      const handleClick = (e: MouseEvent) => {
+        if (!isOpen && !closeOnClickoutside) return;
+        if (!contentRef.current?.contains(e.target as Node)) {
+          handleClose();
+        }
+      };
+      window.addEventListener("click", handleClick);
+      return () => window.removeEventListener("click", handleClick);
+    }, [closeOnClickoutside, handleClose, isOpen]);
 
     const shouldRender = isOpen || (withTransition && !exited) || keepMounted;
     if (!shouldRender) return null;
@@ -103,7 +119,9 @@ const PopupContent = React.forwardRef<HTMLDivElement, PopupProps>(
 interface PopupContextValue {
   triggerRef: React.MutableRefObject<HTMLElement | null>;
   isOpen: boolean;
-  onIsOpenChange: (isOpen: boolean) => void;
+  handleToggle: () => void;
+  handleClose: () => void;
+  closeOnClickoutside: boolean;
 }
 
 const [PopupProvider, usePopup] = createContext<PopupContextValue>("PopupRoot");
@@ -112,6 +130,7 @@ interface PopupRootProps extends React.ComponentPropsWithoutRef<"div"> {
   isOpen?: boolean;
   defaultIsOpen?: boolean;
   onIsOpenChange?: (isOpen: boolean) => void;
+  closeOnClickoutside?: boolean;
 }
 const PopupRoot = React.forwardRef<HTMLDivElement, PopupRootProps>(
   function PopupRoot(props: PopupRootProps, forwardRef) {
@@ -120,6 +139,7 @@ const PopupRoot = React.forwardRef<HTMLDivElement, PopupRootProps>(
       isOpen: isOpenProp,
       defaultIsOpen = false,
       onIsOpenChange = () => {},
+      closeOnClickoutside = false,
       ...rest
     } = props;
     const triggerRef = React.useRef<HTMLElement | null>(null);
@@ -129,20 +149,32 @@ const PopupRoot = React.forwardRef<HTMLDivElement, PopupRootProps>(
       defaultProp: defaultIsOpen,
     });
 
-    const handleIsOpenChange = React.useCallback(
-      (isOpen: boolean) => {
-        setIsOpen(isOpen);
-        onIsOpenChange?.(isOpen);
-      },
-      [onIsOpenChange, setIsOpen]
-    );
+    const onChange = useStableCallback(onIsOpenChange);
+
+    const handleClose = React.useCallback(() => {
+      setIsOpen(false);
+      onChange?.(false);
+    }, [onChange, setIsOpen]);
+
+    const handleToggle = React.useCallback(() => {
+      setIsOpen(!isOpen);
+      onChange?.(!isOpen);
+    }, [isOpen, onChange, setIsOpen]);
 
     return (
-      <div ref={forwardRef} {...rest}>
+      <div
+        ref={forwardRef}
+        {...rest}
+        onClick={(e) => {
+          closeOnClickoutside && e.stopPropagation();
+        }}
+      >
         <PopupProvider
           triggerRef={triggerRef}
           isOpen={isOpen}
-          onIsOpenChange={handleIsOpenChange}
+          handleToggle={handleToggle}
+          handleClose={handleClose}
+          closeOnClickoutside={closeOnClickoutside}
         >
           {children}
         </PopupProvider>
@@ -157,11 +189,18 @@ interface PopupTriggerProps extends React.ComponentPropsWithoutRef<"button"> {
 const PopupTrigger = React.forwardRef<Element, PopupTriggerProps>(
   function PopupTrigger(props: PopupTriggerProps, forwardRef) {
     const { children, asChild = false, ...rest } = props;
-    const { triggerRef, onIsOpenChange, isOpen } = usePopup("PopupTrigger");
+    const { triggerRef, handleToggle, closeOnClickoutside } =
+      usePopup("PopupTrigger");
     const composedRef = useComposeRefs(triggerRef, forwardRef);
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp ref={composedRef} {...rest} onClick={() => onIsOpenChange(!isOpen)}>
+      <Comp
+        ref={composedRef}
+        {...rest}
+        onClick={() => {
+          handleToggle();
+        }}
+      >
         {children}
       </Comp>
     );
