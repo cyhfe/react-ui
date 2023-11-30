@@ -34,7 +34,7 @@ export function Single() {
       <PopupRoot>
         <PopupTrigger asChild>
           <SelectTrigger className="w-80 min-h-[30px] px-3 py-2 text-left border rounded shadow">
-            <SelectPlaceholder className="text-slate-400" />
+            <SelectPlaceholder className="text-slate-500" />
             <SelectLabel />
           </SelectTrigger>
         </PopupTrigger>
