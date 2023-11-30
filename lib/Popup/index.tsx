@@ -7,7 +7,8 @@ import {
 } from "@floating-ui/react";
 import * as React from "react";
 import { Portal } from "../Portal";
-import { Slot, useComposeRefs } from "..";
+import { Slot, createContext, useComposeRefs } from "..";
+import { useControlled } from "../useControlled";
 
 interface ChildrenProps {
   open: boolean;
@@ -97,6 +98,70 @@ const Popup = React.forwardRef<HTMLDivElement, PopupProps>(
             : children}
         </Comp>
       </Portal>
+    );
+  }
+);
+
+interface PopupContextValue {
+  triggerRef: React.MutableRefObject<HTMLElement | null>;
+  isOpen: boolean;
+  onIsOpenChange: (isOpen: boolean) => void;
+}
+
+const [PopupProvider, usePopup] = createContext<PopupContextValue>("PopupRoot");
+
+interface PopupRootProps extends React.ComponentPropsWithoutRef<"div"> {
+  isOpen?: boolean;
+  defaultIsOpen?: boolean;
+  onIsOpenChange?: (isOpen: boolean) => void;
+}
+const PopupRoot = React.forwardRef<HTMLDivElement, PopupRootProps>(
+  function PopupRoot(props: PopupRootProps, forwardRef) {
+    const {
+      children,
+      isOpen: isOpenProp,
+      defaultIsOpen = false,
+      onIsOpenChange,
+      ...rest
+    } = props;
+    const triggerRef = React.useRef<HTMLElement | null>(null);
+
+    const [isOpen = defaultIsOpen, setIsOpen] = useControlled({
+      controlled: isOpenProp,
+      defaultProp: defaultIsOpen,
+    });
+
+    const handleIsOpenChange = React.useCallback(
+      (isOpen: boolean) => {
+        setIsOpen(isOpen);
+        onIsOpenChange?.(isOpen);
+      },
+      [onIsOpenChange, setIsOpen]
+    );
+
+    return (
+      <div ref={forwardRef} {...rest}>
+        <PopupProvider
+          triggerRef={triggerRef}
+          isOpen={isOpen}
+          onIsOpenChange={handleIsOpenChange}
+        >
+          {children}
+        </PopupProvider>
+      </div>
+    );
+  }
+);
+
+interface PopupTriggerProps extends React.ComponentPropsWithoutRef<"div"> {}
+const PopupTrigger = React.forwardRef<HTMLDivElement, PopupTriggerProps>(
+  function PopupTrigger(props: PopupTriggerProps, forwardRef) {
+    const { children, ...rest } = props;
+
+    return (
+      <div ref={composedRef} {...rest}>
+        {children}
+      </div>
     );
   }
 );

@@ -5,9 +5,11 @@ import {
   useCompoundItem,
   useCompoundParent,
 } from "../lib/useCompound";
+
 import { Popup } from "../lib/Popup";
 
 import { useComposeRefs } from "../lib/useComposeRefs";
+
 export default { title: "Components/Select" };
 
 interface UseSelectParams {
@@ -32,6 +34,7 @@ function useSelect(params: UseSelectParams) {
         }
       } else {
         setSelectedValue(value);
+        setIsOpen(false);
       }
     },
     [multiple, selectedValue]
@@ -143,6 +146,7 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(function Select(
       </button>
       <SelectProvider value={value}>
         <Popup
+          keepMounted
           open={isOpen}
           anchor={triggerRef.current}
           className="p-2 shadow max-w-sm border rounded"
@@ -189,7 +193,7 @@ const Option = React.forwardRef<HTMLSpanElement, OptionProps>(function Option(
 
 export function SelectDemo() {
   return (
-    <Select multiple>
+    <Select>
       <Option value="1">one</Option>
       <Option value="2">two</Option>
       <Option value="3">three</Option>
