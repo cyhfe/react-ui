@@ -189,8 +189,7 @@ interface PopupTriggerProps extends React.ComponentPropsWithoutRef<"button"> {
 const PopupTrigger = React.forwardRef<Element, PopupTriggerProps>(
   function PopupTrigger(props: PopupTriggerProps, forwardRef) {
     const { children, asChild = false, ...rest } = props;
-    const { triggerRef, handleToggle, closeOnClickoutside } =
-      usePopup("PopupTrigger");
+    const { triggerRef, handleToggle } = usePopup("PopupTrigger");
     const composedRef = useComposeRefs(triggerRef, forwardRef);
     const Comp = asChild ? Slot : "button";
     return (
