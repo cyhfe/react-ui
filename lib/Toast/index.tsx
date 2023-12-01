@@ -1,35 +1,38 @@
 import * as React from "react";
 
-let memoryState = [];
-
-function toast(value: string) {
-  memoryState = [...memoryState, value];
-  listener.forEach((cb) => {
-    cb([...memoryState]);
-  });
+interface ToastRootProps extends React.ComponentPropsWithoutRef<"div"> {
+  autoClose?: boolean;
+  delay?: number;
+  onRemove?: () => void;
 }
 
-const listener = new Set();
+const ToastRoot = React.forwardRef<HTMLDivElement, ToastRootProps>(
+  function ToastRoot(props: ToastRootProps, forwardRef) {
+    const {
+      children,
+      autoClose = true,
+      onRemove = () => {},
+      delay = 3000,
+      ...rest
+    } = props;
 
-function Toaster() {
-  const [toasts, setToasts] = React.useState(memoryState);
+    React.useEffect(() => {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      if (autoClose) {
+        timer = setTimeout(() => {
+          onRemove();
+        }, delay);
+      }
+      return () => timer && clearTimeout(timer);
+    }, [autoClose, delay, onRemove]);
 
-  React.useEffect(() => {
-    listener.add(setToasts);
-    return () => {
-      listener.delete(setToasts);
-    };
-  }, []);
+    return (
+      <div ref={forwardRef} {...rest}>
+        {children}
+      </div>
+    );
+  }
+);
 
-  React.useEffect(() => {
-    console.log(toasts);
-  }, [toasts]);
-
-  return (
-    <div>
-      {toasts.map((toast) => {
-        return <span>{toast}</span>;
-      })}
-    </div>
-  );
-}
+export { ToastRoot };
+export { createStore } from "./createStore";

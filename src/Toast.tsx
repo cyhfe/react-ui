@@ -4,7 +4,28 @@ import { v4 as uuid } from "uuid";
 
 import { createStore } from "./createStore";
 
-function reducer(prev, action) {
+interface Toast {
+  content: string;
+}
+
+type ToastWithId = Toast & {
+  id: string;
+};
+
+type State = ToastWithId[];
+interface AddAction {
+  type: "add";
+  payload: ToastWithId;
+}
+
+interface RemoveAction {
+  type: "remove";
+  payload: string;
+}
+
+type Action = AddAction | RemoveAction;
+
+function reducer(prev: State, action: Action) {
   switch (action.type) {
     case "add":
       return [...prev, action.payload];
@@ -17,7 +38,7 @@ function reducer(prev, action) {
   }
 }
 
-export function addToast(toast) {
+export function addToast(toast: Toast) {
   const id = uuid();
   store.dispatch({
     type: "add",
@@ -28,7 +49,7 @@ export function addToast(toast) {
   });
 }
 
-export function removeToast(id) {
+export function removeToast(id: string) {
   store.dispatch({ type: "remove", payload: id });
 }
 
@@ -52,7 +73,7 @@ export function Toaster() {
       <div className="fixed top-0 right-0 flex flex-col">
         {toasts.map((toast) => {
           return (
-            <span>
+            <ToastRoot toast={toast} key={toast.id}>
               {toast.content}
               <button
                 onClick={() => {
@@ -61,10 +82,38 @@ export function Toaster() {
               >
                 x
               </button>
-            </span>
+            </ToastRoot>
           );
         })}
       </div>
     </Portal>
   );
 }
+
+interface ToastRootProps extends React.ComponentPropsWithoutRef<"div"> {
+  autoClose?: boolean;
+  toast: ToastWithId;
+  delay?: number;
+}
+
+const ToastRoot = React.forwardRef<HTMLDivElement, ToastRootProps>(
+  function ToastRoot(props: ToastRootProps, forwardRef) {
+    const { children, autoClose = true, delay = 3000, toast, ...rest } = props;
+
+    React.useEffect(() => {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      if (autoClose) {
+        timer = setTimeout(() => {
+          removeToast(toast.id);
+        }, delay);
+      }
+      return () => timer && clearTimeout(timer);
+    }, [autoClose, delay, toast.id]);
+
+    return (
+      <div ref={forwardRef} {...rest}>
+        {children}
+      </div>
+    );
+  }
+);
