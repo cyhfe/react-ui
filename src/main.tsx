@@ -7,17 +7,19 @@ import { TooltipDemo } from "./Tooltip.tsx";
 import { TabsDemo } from "./Tabs.tsx";
 import { PopupDemo } from "./Popup.tsx";
 import { SelectDemo } from "./Select.tsx";
+import { Toaster } from "./Toast.tsx";
 
 import "./tailwind.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    {/* <App /> */}
+    <App />
     {/* <Demo /> */}
     {/* <ModalDemo /> */}
     {/* <TooltipDemo /> */}
     {/* <TabsDemo /> */}
     {/* <PopupDemo /> */}
-    <SelectDemo />
+    {/* <SelectDemo /> */}
+    <Toaster />
   </React.StrictMode>
 );
