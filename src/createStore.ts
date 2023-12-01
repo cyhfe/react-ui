@@ -37,13 +37,3 @@ function reducer(state = 0, action) {
     }
   }
 }
-
-// const store = createStore(reducer, 0);
-
-// store.subscribe(() => {
-//   console.log(store.getState());
-// });
-
-// store.dispatch({ type: "add" });
-// store.dispatch({ type: "add" });
-// store.dispatch({ type: "add" });
