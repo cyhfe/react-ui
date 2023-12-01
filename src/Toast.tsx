@@ -7,13 +7,7 @@ import { createStore } from "./createStore";
 function reducer(prev, action) {
   switch (action.type) {
     case "add":
-      return [
-        ...prev,
-        {
-          ...action.payload,
-          id: uuid(),
-        },
-      ];
+      return [...prev, action.payload];
 
     case "remove":
       return prev.filter((toast) => toast.id !== action.payload);
@@ -24,7 +18,14 @@ function reducer(prev, action) {
 }
 
 export function addToast(toast) {
-  store.dispatch({ type: "add", payload: toast });
+  const id = uuid();
+  store.dispatch({
+    type: "add",
+    payload: {
+      ...toast,
+      id,
+    },
+  });
 }
 
 export function removeToast(id) {
