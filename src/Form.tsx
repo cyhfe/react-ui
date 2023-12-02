@@ -50,7 +50,10 @@ function FormDemo() {
 
 interface FormRootContextValue {
   getValidityByFieldName: (fieldName: string) => ValidityState | undefined;
-  updateValidityMap: (filedName: string, validityState: ValidityState) => void;
+  onFieldValidityChange: (
+    filedName: string,
+    validityState: ValidityState
+  ) => void;
 }
 const [FormRootProvider, useFormRoot] =
   createContext<FormRootContextValue>("FormRoot");
@@ -72,7 +75,7 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
       [validityMap]
     );
 
-    const updateValidityMap = React.useCallback(
+    const onFieldValidityChange = React.useCallback(
       (fieldName: string, validityState: ValidityState) => {
         setValidityMap((prev) => {
           const next = new Map(prev);
@@ -90,7 +93,7 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
     return (
       <FormRootProvider
         getValidityByFieldName={getValidityByFieldName}
-        updateValidityMap={updateValidityMap}
+        onFieldValidityChange={onFieldValidityChange}
       >
         <form ref={forwardRef} {...rest}>
           {children}
@@ -144,7 +147,7 @@ interface FormControlProps extends React.ComponentPropsWithoutRef<"input"> {}
 const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
   function FormControl(props: FormControlProps, forwardRef) {
     const { id: idProp, ...rest } = props;
-    const { updateValidityMap } = useFormRoot("FormControl");
+    const { onFieldValidityChange } = useFormRoot("FormControl");
     const { id: fieldId, name } = useFormField("FormControl");
     const id = idProp ?? fieldId;
 
@@ -152,16 +155,25 @@ const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
 
     const composedRef = useComposeRefs(controlRef, forwardRef);
 
+    const updateControlValidity = React.useCallback(
+      (control: HTMLInputElement) => {
+        const validity = control.validity;
+        if (hasBuiltinError(validity)) {
+          onFieldValidityChange(name, validity);
+          return;
+        }
+      },
+      [name, onFieldValidityChange]
+    );
+
     React.useEffect(() => {
       const control = controlRef.current;
       if (control) {
-        const handleChange = () => {
-          updateValidityMap(name, control.validity);
-        };
+        const handleChange = () => updateControlValidity(control);
         window.addEventListener("change", handleChange);
         return () => window.removeEventListener("change", handleChange);
       }
-    }, [name, updateValidityMap]);
+    }, [name, updateControlValidity]);
 
     return <input ref={composedRef} id={id} {...rest} />;
   }
@@ -240,5 +252,17 @@ const FormMessageImp = React.forwardRef<HTMLSpanElement, FormMessageImpProps>(
     return <span ref={forwardRef} {...rest} />;
   }
 );
+
+function hasBuiltinError(validity: ValidityState) {
+  let error = false;
+  for (const validityKey in validity) {
+    const key = validityKey;
+    if (key !== "valid" && key !== "customError" && validity[key]) {
+      error = true;
+      break;
+    }
+  }
+  return error;
+}
 
 export { FormDemo };
