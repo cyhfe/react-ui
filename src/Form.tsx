@@ -39,8 +39,9 @@ function FormDemo() {
       >
         <FormField name="username">
           <FormLabel>username</FormLabel>
-          <FormControl required minLength={2} />
-          <FormMessage match="tooShort">至少2个字符</FormMessage>
+          <FormControl required minLength={3} />
+          <FormMessage match="tooShort">至少3个字符</FormMessage>
+          <FormMessage match="valueMissing">必填</FormMessage>
           <FormMessage match={(value) => value !== "aaa"}>
             value必须是aaa
           </FormMessage>
@@ -62,11 +63,12 @@ interface FormRootContextValue {
   removeCustomMatcher: (fieldName: string, id: string) => void;
   updateCustomError: (fieldName: string, error: string[]) => void;
   getCustomError: (fieldName: string) => string[];
+  clearError: (fieldName: string) => void;
 }
 const [FormRootProvider, useFormRoot] =
   createContext<FormRootContextValue>("FormRoot");
 
-type ValidityMap = Map<string, ValidityState>;
+type ValidityMap = Map<string, ValidityState | undefined>;
 type CustomMatcher = (value: string) => boolean;
 interface Matcher {
   id: string;
@@ -155,6 +157,15 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
     );
     const removeCustomError = React.useCallback(() => {}, []);
 
+    const clearError = React.useCallback((fieldName: string) => {
+      setValidityMap((prev) => {
+        const next = new Map(prev);
+        next.set(fieldName, undefined);
+        return next;
+      });
+      setCustomErrors((prev) => ({ ...prev, [fieldName]: [] }));
+    }, []);
+
     React.useEffect(() => {
       console.log(validityMap, customMatchers);
     }, [validityMap, customMatchers]);
@@ -168,6 +179,7 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
         removeCustomMatcher={removeCustomMatcher}
         updateCustomError={updateCustomError}
         getCustomError={getCustomError}
+        clearError={clearError}
       >
         <form ref={forwardRef} {...rest}>
           {children}
@@ -221,8 +233,12 @@ interface FormControlProps extends React.ComponentPropsWithoutRef<"input"> {}
 const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
   function FormControl(props: FormControlProps, forwardRef) {
     const { id: idProp, ...rest } = props;
-    const { onFieldValidityChange, getCustomMatcher, updateCustomError } =
-      useFormRoot("FormControl");
+    const {
+      onFieldValidityChange,
+      getCustomMatcher,
+      updateCustomError,
+      clearError,
+    } = useFormRoot("FormControl");
     const { id: fieldId, name } = useFormField("FormControl");
 
     const customMatcher = getCustomMatcher(name);
@@ -251,6 +267,7 @@ const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
             customError.push(id);
           }
         }
+        control.setCustomValidity(DEFAULT_INVALID_MESSAGE);
         updateCustomError(name, customError);
       },
       [customMatcher, name, onFieldValidityChange, updateCustomError]
@@ -265,7 +282,16 @@ const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
       }
     }, [name, updateControlValidity]);
 
-    return <input ref={composedRef} id={id} {...rest} />;
+    return (
+      <input
+        ref={composedRef}
+        id={id}
+        onChange={() => {
+          // clearError(name);
+        }}
+        {...rest}
+      />
+    );
   }
 );
 
