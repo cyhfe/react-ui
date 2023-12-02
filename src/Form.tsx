@@ -181,7 +181,9 @@ const FormMessage = React.forwardRef<HTMLSpanElement, FormMessageProps>(
       );
     } else if (typeof match === "function") {
       return (
-        <FormMessageImp>{children ?? DEFAULT_INVALID_MESSAGE}</FormMessageImp>
+        <FormCustomMessage>
+          {children ?? DEFAULT_INVALID_MESSAGE}
+        </FormCustomMessage>
       );
     } else {
       return (
@@ -212,6 +214,23 @@ const FormBuiltInMessage = React.forwardRef<
       </FormMessageImp>
     );
   return null;
+});
+
+interface FormCustomMessageProps
+  extends React.ComponentPropsWithoutRef<"span"> {
+  match: (value: string) => boolean;
+}
+const FormCustomMessage = React.forwardRef<
+  HTMLDivElement,
+  FormCustomMessageProps
+>(function FormCustomMessage(props: FormCustomMessageProps, forwardRef) {
+  const { children, ...rest } = props;
+
+  return (
+    <FormMessageImp ref={forwardRef} {...rest}>
+      {children}
+    </FormMessageImp>
+  );
 });
 
 interface FormMessageImpProps extends React.ComponentPropsWithoutRef<"span"> {}
