@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createContext, useComposeRefs } from "../lib";
 
-// bultin
+// builtin
 const validityMatchers = [
   "badInput",
   "patternMismatch",
@@ -41,6 +41,9 @@ function FormDemo() {
           <FormLabel>username</FormLabel>
           <FormControl required minLength={2} />
           <FormMessage match="tooShort">至少2个字符</FormMessage>
+          <FormMessage match={(value) => value !== "aaa"}>
+            value必须是aaa
+          </FormMessage>
         </FormField>
         <button type="submit">submit</button>
       </FormRoot>
@@ -51,14 +54,32 @@ function FormDemo() {
 interface FormRootContextValue {
   getValidityByFieldName: (fieldName: string) => ValidityState | undefined;
   onFieldValidityChange: (
-    filedName: string,
+    fieldName: string,
     validityState: ValidityState
   ) => void;
+  addCustomMatcher: (fieldName: string, customMatcher: Matcher) => void;
+  getCustomMatcher: (fieldName: string) => Matcher[];
+  removeCustomMatcher: (fieldName: string, id: string) => void;
+  updateCustomError: (fieldName: string, error: string[]) => void;
+  getCustomError: (fieldName: string) => string[];
 }
 const [FormRootProvider, useFormRoot] =
   createContext<FormRootContextValue>("FormRoot");
 
 type ValidityMap = Map<string, ValidityState>;
+type CustomMatcher = (value: string) => boolean;
+interface Matcher {
+  id: string;
+  match: CustomMatcher;
+}
+
+interface CustomMatchers {
+  [fileName: string]: Matcher[];
+}
+
+interface CustomErrors {
+  [fileName: string]: string[];
+}
 
 interface FormRootProps extends React.ComponentPropsWithoutRef<"form"> {}
 const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
@@ -86,14 +107,67 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
       []
     );
 
+    const [customMatchers, setCustomMatchers] = React.useState<CustomMatchers>(
+      {}
+    );
+
+    const addCustomMatcher = React.useCallback(
+      (fieldName: string, customMatcher: Matcher) => {
+        setCustomMatchers((prev) => {
+          const fieldErrors = prev[fieldName] ?? [];
+          const nextFieldErrors = [...fieldErrors, customMatcher];
+          return { ...prev, [fieldName]: nextFieldErrors };
+        });
+      },
+      []
+    );
+
+    const getCustomMatcher = React.useCallback(
+      (fieldName: string) => {
+        return customMatchers[fieldName];
+      },
+      [customMatchers]
+    );
+
+    const removeCustomMatcher = React.useCallback(
+      (fieldName: string, id: string) => {
+        setCustomMatchers((prev) => {
+          const fieldErrors = prev[fieldName] ?? [];
+          const nextFieldErrors = fieldErrors.filter((m) => m.id !== id);
+          return { ...prev, [fieldName]: nextFieldErrors };
+        });
+      },
+      []
+    );
+
+    const [customErrors, setCustomErrors] = React.useState<CustomErrors>({});
+    const getCustomError = React.useCallback(
+      (fieldName: string) => {
+        return customErrors[fieldName];
+      },
+      [customErrors]
+    );
+    const updateCustomError = React.useCallback(
+      (fieldName: string, error: string[]) => {
+        setCustomErrors((prev) => ({ ...prev, [fieldName]: error }));
+      },
+      []
+    );
+    const removeCustomError = React.useCallback(() => {}, []);
+
     React.useEffect(() => {
-      console.log(validityMap);
-    }, [validityMap]);
+      console.log(validityMap, customMatchers);
+    }, [validityMap, customMatchers]);
 
     return (
       <FormRootProvider
         getValidityByFieldName={getValidityByFieldName}
         onFieldValidityChange={onFieldValidityChange}
+        addCustomMatcher={addCustomMatcher}
+        getCustomMatcher={getCustomMatcher}
+        removeCustomMatcher={removeCustomMatcher}
+        updateCustomError={updateCustomError}
+        getCustomError={getCustomError}
       >
         <form ref={forwardRef} {...rest}>
           {children}
@@ -147,8 +221,12 @@ interface FormControlProps extends React.ComponentPropsWithoutRef<"input"> {}
 const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
   function FormControl(props: FormControlProps, forwardRef) {
     const { id: idProp, ...rest } = props;
-    const { onFieldValidityChange } = useFormRoot("FormControl");
+    const { onFieldValidityChange, getCustomMatcher, updateCustomError } =
+      useFormRoot("FormControl");
     const { id: fieldId, name } = useFormField("FormControl");
+
+    const customMatcher = getCustomMatcher(name);
+
     const id = idProp ?? fieldId;
 
     const controlRef = React.useRef<HTMLInputElement>();
@@ -156,14 +234,26 @@ const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
     const composedRef = useComposeRefs(controlRef, forwardRef);
 
     const updateControlValidity = React.useCallback(
-      (control: HTMLInputElement) => {
+      async (control: HTMLInputElement) => {
         const validity = control.validity;
+
+        // 内建错误
         if (hasBuiltinError(validity)) {
           onFieldValidityChange(name, validity);
           return;
         }
+
+        // 自定错误
+        const customError: string[] = [];
+        for (const { id, match } of customMatcher) {
+          const isMatch = match(control.value);
+          if (isMatch) {
+            customError.push(id);
+          }
+        }
+        updateCustomError(name, customError);
       },
-      [name, onFieldValidityChange]
+      [customMatcher, name, onFieldValidityChange, updateCustomError]
     );
 
     React.useEffect(() => {
@@ -180,7 +270,7 @@ const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
 );
 
 interface FormMessageProps extends React.ComponentPropsWithoutRef<"span"> {
-  match?: ValidityMatcher | (() => void);
+  match?: ValidityMatcher | CustomMatcher;
 }
 
 const FormMessage = React.forwardRef<HTMLSpanElement, FormMessageProps>(
@@ -193,7 +283,7 @@ const FormMessage = React.forwardRef<HTMLSpanElement, FormMessageProps>(
       );
     } else if (typeof match === "function") {
       return (
-        <FormCustomMessage>
+        <FormCustomMessage match={match}>
           {children ?? DEFAULT_INVALID_MESSAGE}
         </FormCustomMessage>
       );
@@ -230,19 +320,44 @@ const FormBuiltInMessage = React.forwardRef<
 
 interface FormCustomMessageProps
   extends React.ComponentPropsWithoutRef<"span"> {
-  match: (value: string) => boolean;
+  match: CustomMatcher;
 }
 const FormCustomMessage = React.forwardRef<
   HTMLDivElement,
   FormCustomMessageProps
 >(function FormCustomMessage(props: FormCustomMessageProps, forwardRef) {
-  const { children, ...rest } = props;
+  const { children, match, ...rest } = props;
+  const id = React.useId();
+  const {
+    addCustomMatcher,
+    removeCustomMatcher,
+    getCustomError,
+    getValidityByFieldName,
+  } = useFormRoot("FormCustomMessage");
+  const { name } = useFormField("FormCustomMessage");
+  const error = getCustomError(name);
+  const validity = getValidityByFieldName(name);
+  const matcher = React.useMemo(() => {
+    return {
+      id,
+      match,
+    };
+  }, [id, match]);
 
-  return (
-    <FormMessageImp ref={forwardRef} {...rest}>
-      {children}
-    </FormMessageImp>
-  );
+  React.useEffect(() => {
+    addCustomMatcher(name, matcher);
+    return () => removeCustomMatcher(name, id);
+  }, [addCustomMatcher, id, matcher, name, removeCustomMatcher]);
+
+  const isMatch = validity && !hasBuiltinError(validity) && error.includes(id);
+  if (isMatch) {
+    return (
+      <FormMessageImp ref={forwardRef} {...rest}>
+        {children}
+      </FormMessageImp>
+    );
+  }
+  return null;
 });
 
 interface FormMessageImpProps extends React.ComponentPropsWithoutRef<"span"> {}
