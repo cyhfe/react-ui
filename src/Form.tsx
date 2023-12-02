@@ -39,7 +39,8 @@ function FormDemo() {
       >
         <FormField name="username">
           <FormLabel>username</FormLabel>
-          <FormControl />
+          <FormControl required minLength={2} />
+          <FormMessage match="tooShort">至少2个字符</FormMessage>
         </FormField>
         <button type="submit">submit</button>
       </FormRoot>
@@ -47,14 +48,54 @@ function FormDemo() {
   );
 }
 
+interface FormRootContextValue {
+  getValidityByFieldName: (fieldName: string) => ValidityState | undefined;
+  updateValidityMap: (filedName: string, validityState: ValidityState) => void;
+}
+const [FormRootProvider, useFormRoot] =
+  createContext<FormRootContextValue>("FormRoot");
+
+type ValidityMap = Map<string, ValidityState>;
+
 interface FormRootProps extends React.ComponentPropsWithoutRef<"form"> {}
 const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
   function FormRoot(props: FormRootProps, forwardRef) {
     const { children, ...rest } = props;
+    const [validityMap, setValidityMap] = React.useState<ValidityMap>(
+      () => new Map()
+    );
+
+    const getValidityByFieldName = React.useCallback(
+      (fieldName: string) => {
+        return validityMap.get(fieldName);
+      },
+      [validityMap]
+    );
+
+    const updateValidityMap = React.useCallback(
+      (fieldName: string, validityState: ValidityState) => {
+        setValidityMap((prev) => {
+          const next = new Map(prev);
+          next.set(fieldName, validityState);
+          return next;
+        });
+      },
+      []
+    );
+
+    React.useEffect(() => {
+      console.log(validityMap);
+    }, [validityMap]);
+
     return (
-      <form ref={forwardRef} {...rest}>
-        {children}
-      </form>
+      <FormRootProvider
+        getValidityByFieldName={getValidityByFieldName}
+        updateValidityMap={updateValidityMap}
+      >
+        <form ref={forwardRef} {...rest}>
+          {children}
+        </form>
+      </FormRootProvider>
     );
   }
 );
@@ -103,40 +144,34 @@ interface FormControlProps extends React.ComponentPropsWithoutRef<"input"> {}
 const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
   function FormControl(props: FormControlProps, forwardRef) {
     const { id: idProp, ...rest } = props;
-    const { id: fieldId } = useFormField("FormControl");
+    const { updateValidityMap } = useFormRoot("FormControl");
+    const { id: fieldId, name } = useFormField("FormControl");
     const id = idProp ?? fieldId;
 
     const controlRef = React.useRef<HTMLInputElement>();
 
     const composedRef = useComposeRefs(controlRef, forwardRef);
 
-    const updateControlValidity = React.useCallback(
-      function updateControlValidity(control: HTMLInputElement) {
-        console.log(control.validity);
-      },
-      []
-    );
-
     React.useEffect(() => {
       const control = controlRef.current;
       if (control) {
         const handleChange = () => {
-          updateControlValidity(control);
+          updateValidityMap(name, control.validity);
         };
         window.addEventListener("change", handleChange);
         return () => window.removeEventListener("change", handleChange);
       }
-    }, [updateControlValidity]);
+    }, [name, updateValidityMap]);
 
     return <input ref={composedRef} id={id} {...rest} />;
   }
 );
 
 interface FormMessageProps extends React.ComponentPropsWithoutRef<"span"> {
-  match?: () => boolean | string;
+  match?: ValidityMatcher | (() => void);
 }
 
-const FormMessage = React.forwardRef<HTMLDivElement, FormMessageProps>(
+const FormMessage = React.forwardRef<HTMLSpanElement, FormMessageProps>(
   function FormMessage(props: FormMessageProps, forwardRef) {
     const { children, match, ...rest } = props;
 
@@ -149,16 +184,35 @@ const FormMessage = React.forwardRef<HTMLDivElement, FormMessageProps>(
         <FormMessageImp>{children ?? DEFAULT_INVALID_MESSAGE}</FormMessageImp>
       );
     } else {
-      <FormMessageImp>{children ?? DEFAULT_INVALID_MESSAGE}</FormMessageImp>;
+      return (
+        <FormBuiltInMessage match={match} {...rest}>
+          {children ?? DEFAULT_INVALID_MESSAGE}
+        </FormBuiltInMessage>
+      );
     }
-
-    return (
-      <span ref={forwardRef} {...rest}>
-        {children}
-      </span>
-    );
   }
 );
+
+interface FormBuiltInMessageProps
+  extends React.ComponentPropsWithoutRef<"span"> {
+  match: ValidityMatcher;
+}
+const FormBuiltInMessage = React.forwardRef<
+  HTMLDivElement,
+  FormBuiltInMessageProps
+>(function FormBuiltInMessage(props: FormBuiltInMessageProps, forwardRef) {
+  const { children, match, ...rest } = props;
+  const { name } = useFormField("FormBuiltInMessage");
+  const { getValidityByFieldName } = useFormRoot("FormBuiltInMessage");
+  const isMatch = getValidityByFieldName(name)?.[match];
+  if (isMatch)
+    return (
+      <FormMessageImp ref={forwardRef} {...rest}>
+        {children ?? DEFAULT_BUILT_IN_MESSAGES[name]}
+      </FormMessageImp>
+    );
+  return null;
+});
 
 interface FormMessageImpProps extends React.ComponentPropsWithoutRef<"span"> {}
 const FormMessageImp = React.forwardRef<HTMLSpanElement, FormMessageImpProps>(
