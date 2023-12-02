@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createContext, useComposeRefs } from "../lib";
+import { composeEventHandlers, createContext, useComposeRefs } from "../lib";
 
 // builtin
 const validityMatchers = [
@@ -35,6 +35,7 @@ function FormDemo() {
       <FormRoot
         onSubmit={(e) => {
           e.preventDefault();
+          console.log("submit");
         }}
       >
         <FormField name="username">
@@ -47,6 +48,7 @@ function FormDemo() {
           </FormMessage>
         </FormField>
         <button type="submit">submit</button>
+        <button type="reset">reset</button>
       </FormRoot>
     </div>
   );
@@ -86,7 +88,7 @@ interface CustomErrors {
 interface FormRootProps extends React.ComponentPropsWithoutRef<"form"> {}
 const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
   function FormRoot(props: FormRootProps, forwardRef) {
-    const { children, ...rest } = props;
+    const { children, onInvalid, ...rest } = props;
     const [validityMap, setValidityMap] = React.useState<ValidityMap>(
       () => new Map()
     );
@@ -155,7 +157,6 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
       },
       []
     );
-    const removeCustomError = React.useCallback(() => {}, []);
 
     const clearError = React.useCallback((fieldName: string) => {
       setValidityMap((prev) => {
@@ -181,7 +182,14 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
         getCustomError={getCustomError}
         clearError={clearError}
       >
-        <form ref={forwardRef} {...rest}>
+        <form
+          ref={forwardRef}
+          onInvalid={composeEventHandlers((e) => {
+            // 阻止提交、默认验证
+            e.preventDefault();
+          }, onInvalid)}
+          {...rest}
+        >
           {children}
         </form>
       </FormRootProvider>
@@ -250,7 +258,7 @@ const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
     const composedRef = useComposeRefs(controlRef, forwardRef);
 
     const updateControlValidity = React.useCallback(
-      async (control: HTMLInputElement) => {
+      (control: HTMLInputElement) => {
         const validity = control.validity;
 
         // 内建错误
@@ -267,8 +275,11 @@ const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
             customError.push(id);
           }
         }
-        control.setCustomValidity(DEFAULT_INVALID_MESSAGE);
+        control.setCustomValidity(
+          customError.length ? DEFAULT_INVALID_MESSAGE : ""
+        );
         updateCustomError(name, customError);
+        onFieldValidityChange(name, validity);
       },
       [customMatcher, name, onFieldValidityChange, updateCustomError]
     );
@@ -282,16 +293,16 @@ const FormControl = React.forwardRef<HTMLInputElement, FormControlProps>(
       }
     }, [name, updateControlValidity]);
 
-    return (
-      <input
-        ref={composedRef}
-        id={id}
-        onChange={() => {
-          // clearError(name);
-        }}
-        {...rest}
-      />
-    );
+    React.useEffect(() => {
+      const form = controlRef.current?.form;
+      if (form) {
+        const handleReset = () => clearError(name);
+        form.addEventListener("reset", handleReset);
+        return () => form.removeEventListener("reset", handleReset);
+      }
+    }, [clearError, name]);
+
+    return <input ref={composedRef} id={id} {...rest} />;
   }
 );
 
@@ -309,7 +320,7 @@ const FormMessage = React.forwardRef<HTMLSpanElement, FormMessageProps>(
       );
     } else if (typeof match === "function") {
       return (
-        <FormCustomMessage match={match}>
+        <FormCustomMessage match={match} ref={forwardRef} {...rest}>
           {children ?? DEFAULT_INVALID_MESSAGE}
         </FormCustomMessage>
       );
@@ -328,7 +339,7 @@ interface FormBuiltInMessageProps
   match: ValidityMatcher;
 }
 const FormBuiltInMessage = React.forwardRef<
-  HTMLDivElement,
+  HTMLSpanElement,
   FormBuiltInMessageProps
 >(function FormBuiltInMessage(props: FormBuiltInMessageProps, forwardRef) {
   const { children, match, ...rest } = props;
@@ -349,7 +360,7 @@ interface FormCustomMessageProps
   match: CustomMatcher;
 }
 const FormCustomMessage = React.forwardRef<
-  HTMLDivElement,
+  HTMLSpanElement,
   FormCustomMessageProps
 >(function FormCustomMessage(props: FormCustomMessageProps, forwardRef) {
   const { children, match, ...rest } = props;
