@@ -13,6 +13,7 @@ import {
   PopupTrigger,
   PopupContentProps,
 } from "../Popup";
+import { useControlled } from "../useControlled";
 
 /**
  * SelectRoot
@@ -30,6 +31,7 @@ const [SelectRootProvider, useSelectRoot] =
 
 interface SelectRootProps extends React.ComponentPropsWithoutRef<"div"> {
   multiple?: boolean;
+  selectedValue?: string | string[];
   onSelectedChange?: (selected: string | string[]) => void;
   defaultSelected?: string | string[];
   placeholder?: string;
@@ -46,14 +48,17 @@ const SelectRoot = React.forwardRef<HTMLDivElement, SelectRootProps>(
       multiple = false,
       onSelectedChange,
       defaultSelected,
+      selectedValue: selectedValueProp,
       placeholder,
       ...rest
     } = props;
     const [open, setOpen] = React.useState(false);
-    const defaultValue = defaultSelected ?? multiple ? [] : "";
-    const [selectedValue, setSelectedValue] = React.useState<string | string[]>(
-      defaultValue
-    );
+    const defaultValue =
+      defaultSelected ?? multiple ? new Array<string>(0) : "";
+    const [selectedValue, setSelectedValue] = useControlled<string | string[]>({
+      controlled: selectedValueProp,
+      defaultProp: defaultValue,
+    });
     const { subitems: options, contextValue } = useCompoundParent<
       string,
       Metadata
@@ -85,7 +90,7 @@ const SelectRoot = React.forwardRef<HTMLDivElement, SelectRootProps>(
           setOpen(false);
         }
       },
-      [multiple, onSelectedChange, selectedValue]
+      [multiple, onSelectedChange, selectedValue, setSelectedValue]
     );
 
     const getLabelByValue = React.useCallback(
