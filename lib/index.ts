@@ -4,9 +4,9 @@ export { Slot } from "./Slot";
 export { VisuallyHidden } from "./VisuallyHidden";
 export { createContext } from "./createContext";
 export { useId } from "./useId";
-export { Upload, UploadAction, UploadInput, useUpload } from "./Upload";
+export { UploadRoot, UploadAction, UploadInput, useUpload } from "./Upload";
 export {
-  Modal,
+  ModalRoot,
   ModalPortal,
   ModalTrigger,
   ModalContent,
@@ -14,7 +14,16 @@ export {
   ModalOverlay,
   useModal,
 } from "./Modal";
+export type {
+  ModalRootProps,
+  ModalPortalProps,
+  ModalTriggerProps,
+  ModalContentProps,
+  ModalCloseProps,
+  ModalOverlayProps,
+} from "./Modal";
 
+// todo: refactor
 export {
   TooltipGroup,
   Tooltip,
@@ -30,19 +39,31 @@ export {
   useAccordion,
   useAccordionItem,
 } from "./Accordion";
+export type {
+  AccordionRootProps,
+  AccordionItemProps,
+  AccordionTriggerProps,
+  AccordionContentProps,
+} from "./Accordion";
 
 export {
   Tab,
   TabList,
-  useTabListContext,
   TabPanel,
   Tabs,
-  TabsProvider,
   TabsContext,
+  TabsProvider,
+  useTabListContext,
   useTabsContext,
 } from "./Tabs";
+export type { TabProps, TabListProps, TabPanelProps, TabsProps } from "./Tabs";
 
 export { PopupContent, PopupTrigger, PopupRoot } from "./Popup";
+export type {
+  PopupContentProps,
+  PopupTriggerProps,
+  PopupRootProps,
+} from "./Popup";
 
 export {
   SelectRoot,
@@ -51,4 +72,13 @@ export {
   SelectTrigger,
   SelectLabel,
   SelectPlaceholder,
+} from "./Select";
+
+export type {
+  SelectRootProps,
+  SelectPopupProps,
+  SelectOptionProps,
+  SelectTriggerProps,
+  SelectLabelProps,
+  SelectPlaceholderProps,
 } from "./Select";
