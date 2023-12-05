@@ -72,3 +72,4 @@ const Slot = forwardRef<HTMLElement, SlotProps>((props, ref) => {
 });
 
 export { Slot };
+export type { SlotProps };

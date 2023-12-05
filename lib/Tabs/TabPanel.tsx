@@ -5,11 +5,11 @@ import { useCompoundItem } from "../useCompound";
 import { Slot, useComposeRefs } from "..";
 
 // TabPanel
-interface TabPanelBaseProps extends React.ComponentPropsWithoutRef<"div"> {
+interface TabPanelProps extends React.ComponentPropsWithoutRef<"div"> {
   asChild?: boolean;
 }
 
-const TabPanel = React.forwardRef<HTMLDivElement, TabPanelBaseProps>(
+const TabPanel = React.forwardRef<HTMLDivElement, TabPanelProps>(
   (props, forwardRef) => {
     const { children, asChild = false, ...rest } = props;
     const Comp = asChild ? Slot : "div";
@@ -42,3 +42,4 @@ const TabPanel = React.forwardRef<HTMLDivElement, TabPanelBaseProps>(
 );
 
 export { TabPanel };
+export type { TabPanelProps };

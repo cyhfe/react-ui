@@ -153,3 +153,4 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
 });
 
 export { Tabs, TabsProvider, TabsContext, useTabsContext };
+export type { TabsProps };

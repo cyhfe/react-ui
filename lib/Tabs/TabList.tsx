@@ -63,11 +63,11 @@ function useTabList() {
 
 // TabList
 
-interface TabListBaseProps extends React.ComponentPropsWithoutRef<"div"> {
+interface TabListProps extends React.ComponentPropsWithoutRef<"div"> {
   asChild?: boolean;
 }
 
-const TabList = React.forwardRef<HTMLDivElement, TabListBaseProps>(
+const TabList = React.forwardRef<HTMLDivElement, TabListProps>(
   (props, forwardRef) => {
     const { children, asChild, ...rest } = props;
     const Comp = asChild ? Slot : "div";
@@ -81,3 +81,5 @@ const TabList = React.forwardRef<HTMLDivElement, TabListBaseProps>(
 );
 
 export { TabList, useTabListContext };
+
+export type { TabListProps };

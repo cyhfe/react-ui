@@ -6,11 +6,11 @@ import { useTabsContext } from ".";
 import { Slot, useComposeRefs } from "..";
 
 // Tab
-interface TabBaseProps extends React.ComponentPropsWithoutRef<"button"> {
+interface TabProps extends React.ComponentPropsWithoutRef<"button"> {
   asChild?: boolean;
 }
 
-const Tab = React.forwardRef<HTMLButtonElement, TabBaseProps>(
+const Tab = React.forwardRef<HTMLButtonElement, TabProps>(
   (props, forwardRef) => {
     const { children, asChild, ...rest } = props;
     const Comp = asChild ? Slot : "button";
@@ -39,3 +39,5 @@ const Tab = React.forwardRef<HTMLButtonElement, TabBaseProps>(
 );
 
 export { Tab };
+
+export type { TabProps };
