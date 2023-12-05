@@ -3,9 +3,6 @@
   "version": "0.0.12",
   "sideEffects": false,
   "type": "module",
-  "files": [
-    "dist"
-  ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "dist/index.d.ts",
@@ -63,5 +60,9 @@
     "@floating-ui/react-dom": "^2.0.4",
     "uuid": "^9.0.1"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "dist",
+    "lib"
+  ]
 }
