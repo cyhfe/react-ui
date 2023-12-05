@@ -1,3 +1,4 @@
+import { type } from "os";
 import { ReactNode } from "react";
 
 interface VisiuallyHiddenProps {
@@ -23,3 +24,4 @@ function VisuallyHidden({ children }: VisiuallyHiddenProps) {
 }
 
 export { VisuallyHidden };
+export type { VisiuallyHiddenProps };
