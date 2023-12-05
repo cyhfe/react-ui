@@ -186,7 +186,7 @@ const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
  * SelectPopup
  */
 
-const SelectPopup = PopupContent;
+// const SelectPopup = PopupContent;
 
 /**
  * SelectOption
@@ -226,9 +226,10 @@ const SelectOption = React.forwardRef<HTMLButtonElement, SelectOptionProps>(
 
 export {
   SelectRoot,
-  SelectPopup,
   SelectOption,
   SelectTrigger,
   SelectLabel,
   SelectPlaceholder,
 };
+
+export { PopupContent as SelectPopup };
