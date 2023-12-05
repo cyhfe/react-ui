@@ -35,4 +35,5 @@ const ToastRoot = React.forwardRef<HTMLDivElement, ToastRootProps>(
 );
 
 export { ToastRoot };
+export type { ToastRootProps };
 export { createStore } from "./createStore";

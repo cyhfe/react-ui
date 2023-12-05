@@ -51,14 +51,14 @@ type HTTPMethods =
   | "CONNECT"
   | "TRACE";
 
-interface UploadProps {
+interface UploadRootProps {
   children: ReactNode;
   name: string;
   url?: string;
   method?: HTTPMethods;
 }
 
-function Root(props: UploadProps) {
+function UploadRoot(props: UploadRootProps) {
   const [fileList, setFileList] = useState<FileWithId[]>([]);
   const { children, name, url = "/", method = "POST" } = props;
 
@@ -94,68 +94,67 @@ function Root(props: UploadProps) {
   );
 }
 
-interface InputProps extends ComponentPropsWithoutRef<"input"> {
+interface UploadInputProps extends ComponentPropsWithoutRef<"input"> {
   enableDrop?: boolean;
   children?: ReactNode;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(function Upload(
-  props,
-  forwardRef
-) {
-  const { addFiles } = useUpload("Input");
-  const { children, enableDrop = false, ...rest } = props;
-  const inutRef = useRef<HTMLInputElement | null>(null);
-  const composedRef = useComposeRefs(forwardRef, inutRef);
+const UploadInput = forwardRef<HTMLInputElement, UploadInputProps>(
+  function UploadInput(props, forwardRef) {
+    const { addFiles } = useUpload("Input");
+    const { children, enableDrop = false, ...rest } = props;
+    const inutRef = useRef<HTMLInputElement | null>(null);
+    const composedRef = useComposeRefs(forwardRef, inutRef);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const uploadInput = e.currentTarget;
-    if (!uploadInput.files) return;
-    addFiles(uploadInput.files);
-  };
-  return (
-    <div>
-      <VisuallyHidden>
-        <input
-          type="file"
-          ref={composedRef}
-          onChange={handleChange}
-          {...rest}
-        />
-      </VisuallyHidden>
-      <Slot
-        onClick={() => {
-          const input = inutRef.current;
-          if (input) {
-            input.value = "";
-            input.click();
-          }
-        }}
-        onDragEnter={(e) => {
-          if (!enableDrop) return;
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        onDragOver={(e) => {
-          if (!enableDrop) return;
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        onDrop={(e) => {
-          if (!enableDrop) return;
-          e.preventDefault();
-          e.stopPropagation();
-          const dt = e.dataTransfer;
-          addFiles(dt.files);
-        }}
-      >
-        {children ?? <button>upload</button>}
-      </Slot>
-    </div>
-  );
-});
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+      const uploadInput = e.currentTarget;
+      if (!uploadInput.files) return;
+      addFiles(uploadInput.files);
+    };
+    return (
+      <div>
+        <VisuallyHidden>
+          <input
+            type="file"
+            ref={composedRef}
+            onChange={handleChange}
+            {...rest}
+          />
+        </VisuallyHidden>
+        <Slot
+          onClick={() => {
+            const input = inutRef.current;
+            if (input) {
+              input.value = "";
+              input.click();
+            }
+          }}
+          onDragEnter={(e) => {
+            if (!enableDrop) return;
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDragOver={(e) => {
+            if (!enableDrop) return;
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDrop={(e) => {
+            if (!enableDrop) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const dt = e.dataTransfer;
+            addFiles(dt.files);
+          }}
+        >
+          {children ?? <button>upload</button>}
+        </Slot>
+      </div>
+    );
+  }
+);
 
-interface ActionProps {
+interface UploadActionProps {
   children: (props: {
     progress: number;
     status: Status;
@@ -166,7 +165,7 @@ interface ActionProps {
 
 type Status = "idle" | "pending" | "success" | "error" | "cancelled";
 
-function Action(props: ActionProps) {
+function UploadAction(props: UploadActionProps) {
   const { children } = props;
   const [progress, setProgress] = useState(0);
   const xhrRef = useRef<XMLHttpRequest>();
@@ -232,8 +231,5 @@ interface FileWithId {
   uid: string;
 }
 
-const Upload = Root;
-const UploadAction = Action;
-const UploadInput = Input;
-
-export { Upload, UploadAction, UploadInput, useUpload };
+export { UploadRoot, UploadAction, UploadInput, useUpload };
+export type { UploadRootProps, UploadActionProps, UploadInputProps };
