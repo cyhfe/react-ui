@@ -20,16 +20,16 @@ interface ModalContextValue {
   clickOverlayToClose: boolean;
 }
 
-const [ModalProvider, useModal] = createContext<ModalContextValue>("Root");
+const [ModalProvider, useModal] = createContext<ModalContextValue>("ModalRoot");
 
-interface RootProps extends ComponentPropsWithoutRef<"div"> {
+interface ModalRootProps extends ComponentPropsWithoutRef<"div"> {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   defaultOpen?: boolean;
   clickOverlayToClose?: boolean;
 }
 
-const Root = forwardRef<HTMLDivElement, RootProps>(function Root(
+const ModalRoot = forwardRef<HTMLDivElement, ModalRootProps>(function ModalRoot(
   props,
   forwardRef
 ) {
@@ -58,78 +58,77 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(
     </ModalProvider>
   );
 });
-interface PortalProps extends ComponentPropsWithoutRef<"div"> {
+interface ModalPortalProps extends ComponentPropsWithoutRef<"div"> {
   children: ReactNode;
 }
 
-const Portal = forwardRef<HTMLDivElement, PortalProps>(function Portal(
-  props: PortalProps,
-  forwardRef
-) {
-  const { open } = useModal("Portal");
+const ModalPortal = forwardRef<HTMLDivElement, ModalPortalProps>(
+  function ModalPortal(props: ModalPortalProps, forwardRef) {
+    const { open } = useModal("ModalPortal");
 
-  if (!open) return null;
-  return <PortalBase {...props} ref={forwardRef} />;
-});
+    if (!open) return null;
+    return <PortalBase {...props} ref={forwardRef} />;
+  }
+);
 
-interface OverlayProps extends ComponentPropsWithoutRef<"div"> {
+interface ModalOverlayProps extends ComponentPropsWithoutRef<"div"> {
   render?: (props: {
     clickToClose: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     open: boolean;
   }) => ReactNode;
 }
 
-const Overlay = forwardRef<HTMLDivElement, OverlayProps>(function Overlay(
-  props: OverlayProps,
-  forwardRef
-) {
-  const { open, setOpen, clickOverlayToClose } = useModal("Overlay");
-  const { children, onClick, render, ...rest } = props;
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      if (clickOverlayToClose) {
-        setOpen(false);
-        e.stopPropagation();
-      }
-    },
-    [clickOverlayToClose, setOpen]
-  );
-  const composedHandleClick = composeEventHandlers(handleClick, onClick);
-  if (render) {
-    return render({ clickToClose: handleClick, open });
+const ModalOverlay = forwardRef<HTMLDivElement, ModalOverlayProps>(
+  function ModalOverlay(props: ModalOverlayProps, forwardRef) {
+    const { open, setOpen, clickOverlayToClose } = useModal("ModalOverlay");
+    const { children, onClick, render, ...rest } = props;
+    const handleClick = useCallback(
+      (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (clickOverlayToClose) {
+          setOpen(false);
+          e.stopPropagation();
+        }
+      },
+      [clickOverlayToClose, setOpen]
+    );
+    const composedHandleClick = composeEventHandlers(handleClick, onClick);
+    if (render) {
+      return render({ clickToClose: handleClick, open });
+    }
+    if (!open) return null;
+    return (
+      <div {...rest} onClick={composedHandleClick} ref={forwardRef}>
+        {children}
+      </div>
+    );
   }
-  if (!open) return null;
-  return (
-    <div {...rest} onClick={composedHandleClick} ref={forwardRef}>
-      {children}
-    </div>
-  );
-});
+);
 
-interface TriggerProps extends ComponentPropsWithoutRef<"div"> {}
-const Trigger = forwardRef<HTMLDivElement, TriggerProps>(function Trigger(
+interface ModalTriggerProps extends ComponentPropsWithoutRef<"div"> {}
+const ModalTrigger = forwardRef<HTMLDivElement, ModalTriggerProps>(
+  function ModalTrigger(props, forwardRef) {
+    const { setOpen } = useModal("ModalTrigger");
+    const { children, onClick, ...rest } = props;
+    const handleClick: React.MouseEventHandler<HTMLDivElement> =
+      useCallback(() => {
+        setOpen(true);
+      }, [setOpen]);
+    const composedHandleClick = composeEventHandlers(handleClick, onClick);
+    return (
+      <div {...rest} onClick={composedHandleClick} ref={forwardRef}>
+        {children}
+      </div>
+    );
+  }
+);
+
+type ModalCloseProps = ModalTriggerProps;
+
+const ModalClose = forwardRef<HTMLDivElement, ModalCloseProps>(function Trigger(
   props,
   forwardRef
 ) {
-  const { setOpen } = useModal("Trigger");
-  const { children, onClick, ...rest } = props;
-  const handleClick: React.MouseEventHandler<HTMLDivElement> =
-    useCallback(() => {
-      setOpen(true);
-    }, [setOpen]);
-  const composedHandleClick = composeEventHandlers(handleClick, onClick);
-  return (
-    <div {...rest} onClick={composedHandleClick} ref={forwardRef}>
-      {children}
-    </div>
-  );
-});
-
-const Close = forwardRef<HTMLDivElement, TriggerProps>(function Trigger(
-  props,
-  forwardRef
-) {
-  const { setOpen } = useModal("Close");
+  const { setOpen } = useModal("ModalClose");
   const { children, onClick, ...rest } = props;
   const handleClick: React.MouseEventHandler<HTMLDivElement> =
     useCallback(() => {
@@ -143,42 +142,50 @@ const Close = forwardRef<HTMLDivElement, TriggerProps>(function Trigger(
   );
 });
 
-interface ContentProps extends ComponentPropsWithoutRef<"div"> {}
-const Content = forwardRef<HTMLDivElement, ContentProps>(function Content(
-  props,
-  forwardRef
-) {
-  const { clickOverlayToClose } = useModal("Content");
-  const { children, onClick, ...rest } = props;
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      if (clickOverlayToClose) {
-        e.stopPropagation();
-      }
-    },
-    [clickOverlayToClose]
-  );
-  const composedHandleClick = composeEventHandlers(handleClick, onClick);
-  return (
-    <div {...rest} onClick={composedHandleClick} ref={forwardRef}>
-      {children}
-    </div>
-  );
-});
+interface ModalContentProps extends ComponentPropsWithoutRef<"div"> {}
+const ModalContent = forwardRef<HTMLDivElement, ModalContentProps>(
+  function ModalContent(props, forwardRef) {
+    const { clickOverlayToClose } = useModal("ModalContent");
+    const { children, onClick, ...rest } = props;
+    const handleClick = useCallback(
+      (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (clickOverlayToClose) {
+          e.stopPropagation();
+        }
+      },
+      [clickOverlayToClose]
+    );
+    const composedHandleClick = composeEventHandlers(handleClick, onClick);
+    return (
+      <div {...rest} onClick={composedHandleClick} ref={forwardRef}>
+        {children}
+      </div>
+    );
+  }
+);
 
-const Modal = Root;
-const ModalPortal = Portal;
-const ModalTrigger = Trigger;
-const ModalContent = Content;
-const ModalClose = Close;
-const ModalOverlay = Overlay;
+// const Modal = ModalRoot;
+// const ModalPortal = Portal;
+// const ModalTrigger = Trigger;
+// const ModalContent = Content;
+// const ModalClose = Close;
+// const ModalOverlay = Overlay;
 
 export {
-  Modal,
+  ModalRoot,
   ModalPortal,
   ModalTrigger,
   ModalContent,
-  useModal,
   ModalClose,
   ModalOverlay,
+  useModal,
+};
+
+export type {
+  ModalRootProps,
+  ModalPortalProps,
+  ModalTriggerProps,
+  ModalContentProps,
+  ModalCloseProps,
+  ModalOverlayProps,
 };

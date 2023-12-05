@@ -17,7 +17,7 @@ interface ChildrenProps {
   handleEnter: () => void;
 }
 
-interface PopupProps
+interface PopupContentProps
   extends Omit<React.ComponentPropsWithoutRef<"div">, "children"> {
   withTransition?: boolean;
   children?: ((props: ChildrenProps) => React.ReactNode) | React.ReactNode;
@@ -25,7 +25,7 @@ interface PopupProps
   keepMounted?: boolean;
 }
 
-const PopupContent = React.forwardRef<HTMLDivElement, PopupProps>(
+const PopupContent = React.forwardRef<HTMLDivElement, PopupContentProps>(
   (props, forwardRef) => {
     const {
       asChild,
@@ -203,3 +203,5 @@ const PopupTrigger = React.forwardRef<Element, PopupTriggerProps>(
 );
 
 export { PopupContent, PopupTrigger, PopupRoot };
+
+export type { PopupContentProps, PopupTriggerProps, PopupRootProps };

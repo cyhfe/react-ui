@@ -401,3 +401,11 @@ function hasBuiltinError(validity: ValidityState) {
 }
 
 export { FormRoot, FormControl, FormField, FormLabel, FormMessage };
+
+export type {
+  FormRootProps,
+  FormControlProps,
+  FormFieldProps,
+  FormLabelProps,
+  FormMessageProps,
+};

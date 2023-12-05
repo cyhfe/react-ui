@@ -16,3 +16,5 @@ const Portal = forwardRef<HTMLDivElement, PortalProps>(function Portal(
 });
 
 export { Portal };
+
+export type { PortalProps };

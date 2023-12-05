@@ -200,3 +200,10 @@ export {
   useAccordion,
   useAccordionItem,
 };
+
+export type {
+  AccordionRootProps,
+  AccordionItemProps,
+  AccordionTriggerProps,
+  AccordionContentProps,
+};

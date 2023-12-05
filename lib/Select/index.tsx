@@ -7,7 +7,12 @@ import {
 } from "../useCompound";
 import { useComposeRefs } from "../useComposeRefs";
 import { createContext } from "..";
-import { PopupContent, PopupRoot, PopupTrigger } from "../Popup";
+import {
+  PopupContent,
+  PopupRoot,
+  PopupTrigger,
+  PopupContentProps,
+} from "../Popup";
 
 /**
  * SelectRoot
@@ -233,3 +238,13 @@ export {
 };
 
 export { PopupContent as SelectPopup };
+
+export type {
+  SelectRootProps,
+  SelectOptionProps,
+  SelectTriggerProps,
+  SelectLabelProps,
+  SelectPlaceholderProps,
+};
+
+export type { PopupContentProps as SelectPopupProps };
