@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import {
-  Modal,
+  ModalRoot,
   ModalOverlay,
   ModalTrigger,
   ModalContent,
@@ -14,7 +14,7 @@ export default { title: "Components/Modal" };
 
 export function Portal() {
   return (
-    <Modal>
+    <ModalRoot>
       <ModalTrigger>
         <button className="border rounded px-2 py-1 bg-black text-white">
           trigger
@@ -39,13 +39,13 @@ export function Portal() {
           </div>
         </ModalOverlay>
       </ModalPortal>
-    </Modal>
+    </ModalRoot>
   );
 }
 
 export function Animation() {
   return (
-    <Modal>
+    <ModalRoot>
       <ModalTrigger>
         <button className="border rounded px-2 py-1 bg-black text-white">
           trigger
@@ -82,13 +82,13 @@ export function Animation() {
           );
         }}
       ></ModalOverlay>
-    </Modal>
+    </ModalRoot>
   );
 }
 
 function NestParent({ children }: { children?: ReactNode }) {
   return (
-    <Modal>
+    <ModalRoot>
       <ModalTrigger>
         <button className="border rounded px-2 py-1 bg-black text-white">
           trigger
@@ -126,7 +126,7 @@ function NestParent({ children }: { children?: ReactNode }) {
           );
         }}
       ></ModalOverlay>
-    </Modal>
+    </ModalRoot>
   );
 }
 
@@ -149,7 +149,7 @@ export function Nest() {
 
 export function Scroll() {
   return (
-    <Modal>
+    <ModalRoot>
       <ModalTrigger>
         <button className="border rounded px-2 py-1 bg-black text-white">
           trigger
@@ -176,6 +176,6 @@ export function Scroll() {
           </div>
         </ModalOverlay>
       </ModalPortal>
-    </Modal>
+    </ModalRoot>
   );
 }

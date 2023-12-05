@@ -1,4 +1,4 @@
-import { Upload, UploadAction, UploadInput, useUpload } from "../";
+import { UploadRoot, UploadAction, UploadInput, useUpload } from "../";
 
 export default { title: "Components/Upload" };
 import { MdDeleteOutline } from "react-icons/md";
@@ -48,7 +48,7 @@ function FileList() {
 
 export function Default() {
   return (
-    <Upload name="avatar" url={baseUrl + "/upload"}>
+    <UploadRoot name="avatar" url={baseUrl + "/upload"}>
       <div className="max-w-md">
         <div className="mb-5">
           <div className="mb-2 block text-xl font-semibold">Upload files</div>
@@ -96,7 +96,7 @@ export function Default() {
           </UploadAction>
         </div>
       </div>
-    </Upload>
+    </UploadRoot>
   );
 }
 
@@ -132,7 +132,7 @@ function ImageList() {
 
 export function UploadImages() {
   return (
-    <Upload name="avatar" url={baseUrl + "/upload"}>
+    <UploadRoot name="avatar" url={baseUrl + "/upload"}>
       <div className="max-w-md">
         <div className="mb-5">
           <div className="mb-2 block text-xl font-semibold">Upload Images</div>
@@ -165,6 +165,6 @@ export function UploadImages() {
           </UploadAction>
         </div>
       </div>
-    </Upload>
+    </UploadRoot>
   );
 }
