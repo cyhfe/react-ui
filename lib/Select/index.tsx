@@ -6,7 +6,7 @@ import {
   useCompoundParent,
 } from "../useCompound";
 import { useComposeRefs } from "../useComposeRefs";
-import { createContext } from "..";
+import { Slot, createContext } from "..";
 import {
   PopupContent,
   PopupRoot,
@@ -151,12 +151,14 @@ const SelectLabel = React.forwardRef<HTMLDivElement, SelectLabelProps>(
  */
 
 interface SelectPlaceholderProps
-  extends React.ComponentPropsWithoutRef<"div"> {}
+  extends React.ComponentPropsWithoutRef<"span"> {
+  asChild?: boolean;
+}
 const SelectPlaceholder = React.forwardRef<
   HTMLDivElement,
   SelectPlaceholderProps
 >(function SelectPlaceholder(props: SelectPlaceholderProps, forwardRef) {
-  const { children, ...rest } = props;
+  const { children, asChild = false, ...rest } = props;
   const { selectedValue, placeholder } = useSelectRoot("SelectTriggerProps");
 
   function showPlaceholder() {
@@ -166,10 +168,15 @@ const SelectPlaceholder = React.forwardRef<
       return !selectedValue;
     }
   }
+
+  if (!showPlaceholder()) return null;
+
+  const Comp = asChild ? Slot : "span";
+
   return (
-    <div ref={forwardRef} {...rest}>
-      {children ?? (showPlaceholder() && placeholder)}
-    </div>
+    <Comp ref={forwardRef} {...rest}>
+      {children ?? placeholder}
+    </Comp>
   );
 });
 
