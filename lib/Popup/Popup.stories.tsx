@@ -36,6 +36,23 @@ export function Base() {
   );
 }
 
+export function Placement() {
+  return (
+    // after(radix pattern)
+    <PopupRoot className="flex justify-center items-center">
+      <PopupTrigger className="border border-black rounded px-2 py-1">
+        <div>trigger</div>
+      </PopupTrigger>
+      <PopupContent
+        className="p-2 shadow max-w-sm border rounded"
+        placement="left"
+      >
+        Ut aliquip esse ipsum nisi.
+      </PopupContent>
+    </PopupRoot>
+  );
+}
+
 export function KeepMounted() {
   return (
     <PopupRoot className="flex justify-center items-center">
