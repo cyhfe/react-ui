@@ -155,7 +155,7 @@ interface SelectPlaceholderProps
   asChild?: boolean;
 }
 const SelectPlaceholder = React.forwardRef<
-  HTMLDivElement,
+  HTMLSpanElement,
   SelectPlaceholderProps
 >(function SelectPlaceholder(props: SelectPlaceholderProps, forwardRef) {
   const { children, asChild = false, ...rest } = props;
