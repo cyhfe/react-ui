@@ -4,6 +4,7 @@ import {
   offset,
   flip,
   shift,
+  Placement,
 } from "@floating-ui/react";
 import * as React from "react";
 import { Portal } from "../Portal";
@@ -23,6 +24,7 @@ interface PopupContentProps
   children?: ((props: ChildrenProps) => React.ReactNode) | React.ReactNode;
   asChild?: boolean;
   keepMounted?: boolean;
+  placement?: Placement;
 }
 
 const PopupContent = React.forwardRef<HTMLDivElement, PopupContentProps>(
@@ -32,6 +34,7 @@ const PopupContent = React.forwardRef<HTMLDivElement, PopupContentProps>(
       children,
       withTransition,
       keepMounted = false,
+      placement = "bottom",
       ...rest
     } = props;
     const [exited, setExited] = React.useState(true);
@@ -45,7 +48,7 @@ const PopupContent = React.forwardRef<HTMLDivElement, PopupContentProps>(
         reference: anchor,
       },
       open: isOpen,
-      placement: "bottom",
+      placement,
       middleware: [offset(8), flip(), shift()],
       whileElementsMounted: autoUpdate,
     });
