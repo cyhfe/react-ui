@@ -124,7 +124,9 @@ const SelectRoot = React.forwardRef<HTMLDivElement, SelectRootProps>(
  * SelectLabel
  */
 
-interface SelectLabelProps extends React.ComponentPropsWithoutRef<"div"> {}
+interface SelectLabelProps extends React.ComponentPropsWithoutRef<"span"> {
+  asChild?: boolean;
+}
 const SelectLabel = React.forwardRef<HTMLDivElement, SelectLabelProps>(
   function SelectLabel(props: SelectLabelProps, forwardRef) {
     const { selectedValue, getLabelByValue } = useSelectRoot("SelectLabel");
@@ -137,11 +139,14 @@ const SelectLabel = React.forwardRef<HTMLDivElement, SelectLabelProps>(
       }
       return label;
     }
-    const { children, ...rest } = props;
+    const { children, asChild = false, ...rest } = props;
+
+    const Comp = asChild ? Slot : "span";
+
     return (
-      <div ref={forwardRef} {...rest}>
+      <Comp ref={forwardRef} {...rest}>
         {children ?? renderLabel()}
-      </div>
+      </Comp>
     );
   }
 );

@@ -34,7 +34,7 @@ const PopupContent = React.forwardRef<HTMLDivElement, PopupContentProps>(
       children,
       withTransition,
       keepMounted = false,
-      placement = "right",
+      placement = "bottom-start",
       ...rest
     } = props;
     const [exited, setExited] = React.useState(true);
