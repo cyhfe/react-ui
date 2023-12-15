@@ -9,6 +9,7 @@ import { PopupDemo } from "./Popup.tsx";
 import { SelectDemo } from "./Select.tsx";
 import { Toaster } from "./Toast.tsx";
 import { FormDemo } from "./Form.tsx";
+import { ImageCrop } from "./ImageCrop.tsx";
 
 import "./tailwind.css";
 
@@ -22,6 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     {/* <PopupDemo /> */}
     {/* <SelectDemo /> */}
     {/* <Toaster /> */}
-    <FormDemo />
+    {/* <FormDemo /> */}
+    <ImageCrop />
   </React.StrictMode>
 );
